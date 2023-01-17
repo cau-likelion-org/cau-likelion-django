@@ -1,3 +1,5 @@
+### mysql setting
+
 DATABASES = {
 	'default': {
 		'ENGINE': 'django.db.backends.mysql',
