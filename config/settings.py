@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
 import os, json
+from telnetlib import AUTHENTICATION
 from django.core.exceptions import ImproperlyConfigured
 from pathlib import Path
 import my_settings
@@ -60,6 +61,7 @@ PROJECT_APPS = [
     'lectures',
     'projects',
     'galleries',
+    'authentications',
 ]
 
 THIRD_PARTY_APPS = [
@@ -190,3 +192,10 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     )
 }
+
+##email authentication
+AUTHENTICATION_BACKEND = [
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
