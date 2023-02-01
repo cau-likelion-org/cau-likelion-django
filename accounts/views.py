@@ -5,7 +5,6 @@ from dj_rest_auth.registration.views import SocialLoginView
 from allauth.socialaccount.providers.oauth2.client import OAuth2Client
 from allauth.socialaccount.providers.google import views as google_view
 
-
 from json import JSONDecodeError
 from django.http import JsonResponse
 import requests

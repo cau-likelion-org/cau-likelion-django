@@ -4,9 +4,9 @@ DATABASES = {
 	'default': {
 		'ENGINE': 'django.db.backends.mysql',
 		'NAME': 'sys',
-		'USER': 'admin',
+		'USER': 'root',
 		'PASSWORD': '123456789',
-		'HOST': 'chunghaha.ckbxddzjns0c.ap-northeast-2.rds.amazonaws.com',
+		'HOST': 'localhost',
 		'PORT': '3306',
 	}
 }
