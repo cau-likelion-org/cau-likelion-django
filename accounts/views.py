@@ -6,11 +6,16 @@ from allauth.socialaccount.providers.oauth2.client import OAuth2Client
 from allauth.socialaccount.providers.google import views as google_view
 
 from json import JSONDecodeError
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 import requests
 from rest_framework import status
 from .models import *
 from allauth.socialaccount.models import SocialAccount
+
+import random
+import string
+
+from django.core.mail import EmailMessage
 
 BASE_URL = 'http://localhost:8000/'
 GOOGLE_CALLBACK_URI = BASE_URL + 'api/accounts/google/callback/'
@@ -108,3 +113,21 @@ class GoogleLogin(SocialLoginView):
     adapter_class = google_view.GoogleOAuth2Adapter
     callback_url = GOOGLE_CALLBACK_URI
     client_class = OAuth2Client
+
+# 난수 6자리 생성
+def authentication_num():
+    LENGTH = 6
+    string_pool = string.digits
+    result = ""
+    for _ in range(LENGTH):
+        result += random.choice(string_pool)
+    
+    return result
+    
+# 학교 메일 인증
+def cau_authentication(request):
+    text_title = '[중앙대 멋사] 학교 계정 확인 메일 🦁'
+    text_content = '다음 인증 번호를 입력하여 회원 가입을 계속 진행해주세요\n' + authentication_num()
+    email = EmailMessage(text_title, text_content, to=['hellen2002@cau.ac.kr'])
+    result = email.send()
+    return HttpResponse()
