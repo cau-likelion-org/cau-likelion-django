@@ -11,6 +11,4 @@ class UserSerializer(serializers.ModelSerializer):
             'department',
             'management_team_status',
             'email',
-            'access_token',
-            'refresh_token'
         ]

@@ -125,21 +125,39 @@ def authentication_num():
     result = ""
     for _ in range(LENGTH):
         result += random.choice(string_pool)
-    
     return result
 
 # 학교 메일 인증
 def cau_authentication(request):
     text_title = '[중앙대 멋사] 학교 계정 확인 메일 🦁'
-    text_content = '다음 인증 번호를 입력하여 회원 가입을 계속 진행해주세요\n' + authentication_num()
-    email = EmailMessage(text_title, text_content, to=['hellen2002@cau.ac.kr'])
+    global authentication_num
+    authentication_num = authentication_num()
+    text_content = '다음 인증 번호를 입력하여 회원 가입을 계속 진행해주세요\n' + authentication_num
+    email = EmailMessage(text_title, text_content, to=[request.data['email']])
     result = email.send()
-    return HttpResponse()
+    return authentication_num
 
+# 회원가입 -> 인증번호 요청 버튼 누를 때
 class UserView(APIView):
     def post(self, request):
-        serializer = UserSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-        return JsonResponse({'success'}, status=OK)
+        global authentication_num
+        authentication_num  = cau_authentication(request)
+
+        new_user = User.objects.create(
+            name = request.data['name'],
+            generation = request.data['generation'],
+            management_team_status = request.data['management_team_status'],
+            email = request.data['email'],
+            department = request.data['department'],
+            access_token = request.headers.get('access-token'),
+            refresh_token = request.headers.get('refresh-token'),
+            authentication_number = authentication_num
+        )
+        # serializer = UserSerializer(data=request.data)
+        # if serializer.is_valid():
+        #     serializer.save()
+        #     return JsonResponse('success', safe=False)
+        return JsonResponse({
+            'name':new_user.name
+        })
         
