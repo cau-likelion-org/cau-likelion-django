@@ -89,6 +89,7 @@ def google_callback(request):
 
         accept_json = accept.json()
         accept_json.pop('user', None)
+        
         return JsonResponse(accept_json)
     
     except User.DoesNotExist:
@@ -109,8 +110,17 @@ def google_callback(request):
 
         accept_json = accept.json()
         accept_json.pop('user', None)
+
+        save_token(email, accept_json)
+        
         return JsonResponse(accept_json)
 
+# 토큰 저장
+def save_token(email, token):
+    user = User.objects.get(email=email)
+    user.access_token = token.get('access_token')
+    user.refresh_token = token.get('refresh_token')
+    user.save()
 
 # 구글 소셜 로그인 뷰
 class GoogleLogin(SocialLoginView):
@@ -146,7 +156,6 @@ class UserView(APIView):
         new_user = User.objects.create(
             name = request.data['name'],
             generation = request.data['generation'],
-            management_team_status = request.data['management_team_status'],
             email = request.data['email'],
             department = request.data['department'],
             access_token = request.headers.get('access-token'),
@@ -160,4 +169,5 @@ class UserView(APIView):
         return JsonResponse({
             'name':new_user.name
         })
+
         

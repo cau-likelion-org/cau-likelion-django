@@ -51,13 +51,12 @@ class User(AbstractBaseUser, PermissionsMixin):
    
    objects = UserManager()
    
-   name = models.CharField(max_length=10)
-   generation = models.IntegerField()
-   management_team_status = models.BooleanField(default=False)
-   email = models.CharField(max_length=254, unique=True)
-   department = models.IntegerField()
-   access_token = models.CharField(max_length=200)
-   refresh_token = models.CharField(max_length=200)
+   name = models.CharField(max_length=10, blank=True, null=True)
+   generation = models.IntegerField(blank=True, null=True)
+   email = models.CharField(max_length=254, unique=True, blank=True, null=True)
+   department = models.IntegerField(blank=True, null=True)
+   access_token = models.CharField(max_length=300)
+   refresh_token = models.CharField(max_length=300)
    authentication_number = models.CharField(max_length=6, blank=True, null=True)
 
    is_active = models.BooleanField(default=False)
@@ -67,7 +66,6 @@ class User(AbstractBaseUser, PermissionsMixin):
    REQUIRED_FIELDS = [
        'name',
        'generation',
-       'management_team_status',
        'department',
        'access_token',
        'refresh_token'
@@ -79,3 +77,5 @@ class User(AbstractBaseUser, PermissionsMixin):
    @property
    def is_staff(self):
        return self.is_admin
+    
+    
