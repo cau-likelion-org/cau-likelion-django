@@ -2,7 +2,7 @@ from http.client import OK
 import os
 from django.shortcuts import render, redirect
 from accounts.serializers import UserSerializer
-
+##
 from dj_rest_auth.registration.views import SocialLoginView
 from allauth.socialaccount.providers.oauth2.client import OAuth2Client
 from allauth.socialaccount.providers.google import views as google_view
