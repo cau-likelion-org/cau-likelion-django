@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
 import os, json
+from telnetlib import AUTHENTICATION
 from django.core.exceptions import ImproperlyConfigured
 from pathlib import Path
 import my_settings
@@ -162,13 +163,13 @@ AWS_SECRET_ACCESS_KEY = 'ZNevToswMwc4VbfnhrRQjLeF4978uOrLKZ/AcAyj'
 AWS_REGION = 'ap-northeast-2'
 
 ########S3###########
-AWS_STORAGE_BUCKET_NAME = 'chunghaha'
-AWS_S3_CUSTOM_DOMAIN = '%s.s3.%s.amazonaws.com' % (AWS_STORAGE_BUCKET_NAME,AWS_REGION)
-AWS_S3_OBJECT_PARAMETERS = {
-    'CacheControl': 'max-age=86400',
-}
-DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'path/to/store/my/files/')
+# AWS_STORAGE_BUCKET_NAME = 'chunghaha'
+# AWS_S3_CUSTOM_DOMAIN = '%s.s3.%s.amazonaws.com' % (AWS_STORAGE_BUCKET_NAME,AWS_REGION)
+# AWS_S3_OBJECT_PARAMETERS = {
+#     'CacheControl': 'max-age=86400',
+# }
+# DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+# MEDIA_ROOT = os.path.join(BASE_DIR, 'path/to/store/my/files/')
 
 
 ### Google Login
@@ -190,3 +191,18 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     )
 }
+
+##email authentication
+AUTHENTICATION_BACKEND = [
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = '587'
+EMAIL_HOST_USER = 'polarpheno@gmail.com'
+EMAIL_HOST_PASSWORD = 'khmftyqpwjlrudty'
+EMAIL_USE_TLS = True
+DEFAULT_FORM_EMAIL = EMAIL_HOST_USER
+ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 1

@@ -1,16 +1,25 @@
+from http.client import OK
 import os
 from django.shortcuts import render, redirect
+from accounts.serializers import UserSerializer
 
 from dj_rest_auth.registration.views import SocialLoginView
 from allauth.socialaccount.providers.oauth2.client import OAuth2Client
 from allauth.socialaccount.providers.google import views as google_view
 
 from json import JSONDecodeError
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 import requests
 from rest_framework import status
 from .models import *
 from allauth.socialaccount.models import SocialAccount
+
+import random
+import string
+
+from django.core.mail import EmailMessage
+
+from rest_framework.views import APIView
 
 BASE_URL = 'http://localhost:8000/'
 GOOGLE_CALLBACK_URI = BASE_URL + 'api/accounts/google/callback/'
@@ -108,3 +117,47 @@ class GoogleLogin(SocialLoginView):
     adapter_class = google_view.GoogleOAuth2Adapter
     callback_url = GOOGLE_CALLBACK_URI
     client_class = OAuth2Client
+
+# 난수 6자리 생성
+def authentication_num():
+    LENGTH = 6
+    string_pool = string.digits
+    result = ""
+    for _ in range(LENGTH):
+        result += random.choice(string_pool)
+    return result
+
+# 학교 메일 인증
+def cau_authentication(request):
+    text_title = '[중앙대 멋사] 학교 계정 확인 메일 🦁'
+    global authentication_num
+    authentication_num = authentication_num()
+    text_content = '다음 인증 번호를 입력하여 회원 가입을 계속 진행해주세요\n' + authentication_num
+    email = EmailMessage(text_title, text_content, to=[request.data['email']])
+    result = email.send()
+    return authentication_num
+
+# 회원가입 -> 인증번호 요청 버튼 누를 때
+class UserView(APIView):
+    def post(self, request):
+        global authentication_num
+        authentication_num  = cau_authentication(request)
+
+        new_user = User.objects.create(
+            name = request.data['name'],
+            generation = request.data['generation'],
+            management_team_status = request.data['management_team_status'],
+            email = request.data['email'],
+            department = request.data['department'],
+            access_token = request.headers.get('access-token'),
+            refresh_token = request.headers.get('refresh-token'),
+            authentication_number = authentication_num
+        )
+        # serializer = UserSerializer(data=request.data)
+        # if serializer.is_valid():
+        #     serializer.save()
+        #     return JsonResponse('success', safe=False)
+        return JsonResponse({
+            'name':new_user.name
+        })
+        
