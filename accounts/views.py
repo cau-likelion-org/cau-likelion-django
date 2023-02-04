@@ -1,8 +1,9 @@
 from http.client import OK
 import os
+import re
 from django.shortcuts import render, redirect
 from accounts.serializers import UserSerializer
-##
+
 from dj_rest_auth.registration.views import SocialLoginView
 from allauth.socialaccount.providers.oauth2.client import OAuth2Client
 from allauth.socialaccount.providers.google import views as google_view
@@ -14,13 +15,12 @@ from rest_framework import status
 from .models import *
 from allauth.socialaccount.models import SocialAccount
 
-import random
-import string
-
 from django.core.mail import EmailMessage
 
 from rest_framework.views import APIView
 
+import uuid
+import datetime as pydatetime
 BASE_URL = 'http://localhost:8000/'
 GOOGLE_CALLBACK_URI = BASE_URL + 'api/accounts/google/callback/'
 
@@ -129,45 +129,58 @@ class GoogleLogin(SocialLoginView):
     client_class = OAuth2Client
 
 # 난수 6자리 생성
-def authentication_num():
-    LENGTH = 6
-    string_pool = string.digits
-    result = ""
-    for _ in range(LENGTH):
-        result += random.choice(string_pool)
+def create_code(email):
+    time = pydatetime.datetime.now().timestamp()
+    result = str(uuid.uuid5(uuid.NAMESPACE_URL, str(email)))
     return result
 
 # 학교 메일 인증
 def cau_authentication(request):
     text_title = '[중앙대 멋사] 학교 계정 확인 메일 🦁'
-    global authentication_num
-    authentication_num = authentication_num()
-    text_content = '다음 인증 번호를 입력하여 회원 가입을 계속 진행해주세요\n' + authentication_num
+    global code
+    code = create_code(request.data['email'])
+    text_content = '다음 인증 번호를 입력하여 회원 가입을 계속 진행해주세요\n' + code
     email = EmailMessage(text_title, text_content, to=[request.data['email']])
     result = email.send()
-    return authentication_num
+    return code
 
-# 회원가입 -> 인증번호 요청 버튼 누를 때
+#추가 정보 기입
 class UserView(APIView):
     def post(self, request):
-        global authentication_num
-        authentication_num  = cau_authentication(request)
-
-        new_user = User.objects.create(
-            name = request.data['name'],
-            generation = request.data['generation'],
-            email = request.data['email'],
-            department = request.data['department'],
-            access_token = request.headers.get('access-token'),
-            refresh_token = request.headers.get('refresh-token'),
-            authentication_number = authentication_num
-        )
-        # serializer = UserSerializer(data=request.data)
-        # if serializer.is_valid():
-        #     serializer.save()
-        #     return JsonResponse('success', safe=False)
+        token = request.META.get('HTTP_AUTHORIZATION')
+        user = User.objects.get(access_token=token)
+        user.name = request.data['name']
+        user.generation = request.data['generation']
+        user.track = request.data['track']
+        user.is_admin = request.data['is_admin']
+        user.is_active = True
+        user.save()
         return JsonResponse({
-            'name':new_user.name
+            'name':user.name,
+            'generation':user.generation,
+            'track':user.track,
+            'is_admin':user.is_admin,
         })
+    
+    def get(self, request):
+        token = request.META.get('HTTP_AUTHORIZATION')
+        user = User.objects.get(access_token=token)
 
-        
+class CauMailView(APIView):
+    
+    def get(self, request):
+        code = cau_authentication(request)
+        token = request.META.get('HTTP_AUTHORIZATION')
+        user = User.objects.get(access_token = token)
+        user.code = code
+        user.save()
+        return JsonResponse({
+            'code':code,
+        }, safe=False)
+    
+    def post(self, request):
+        token = request.META.get('HTTP_AUTHORIZATION')
+        code = User.objects.get(access_token = token).code
+        if request.data['code'] != code:
+            return JsonResponse('False', safe=False)
+        return JsonResponse('True', safe=False)
