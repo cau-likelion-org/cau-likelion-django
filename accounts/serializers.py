@@ -8,7 +8,7 @@ class UserSerializer(serializers.ModelSerializer):
         fields = [
             'name',
             'generation',
-            'department',
+            'track',
             'management_team_status',
             'email',
         ]

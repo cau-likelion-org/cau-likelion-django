@@ -6,7 +6,7 @@ class UserManager(BaseUserManager):
    
    use_in_migrations = True    
    
-   def create_user(self, name, generation, management_team_status, email, department, access_token, refresh_token, password):        
+   def create_user(self, name, generation, management_team_status, email, track, access_token, refresh_token, password):        
        
        if not email:            
            raise ValueError('must have user email')
@@ -18,7 +18,7 @@ class UserManager(BaseUserManager):
            generation = generation,     
            management_team_status = management_team_status,
            email = email,    
-           department = department, 
+           track = track, 
            access_token = access_token,
            refresh_token = refresh_token, 
        )        
@@ -28,14 +28,14 @@ class UserManager(BaseUserManager):
        user.save(using=self._db)        
        return user
 
-   def create_superuser(self, name, generation, management_team_status, email, department, access_token, refresh_token, password):        
+   def create_superuser(self, name, generation, management_team_status, email, track, access_token, refresh_token, password):        
    
        user = self.create_user( 
            name = name,  
            generation = generation,     
            management_team_status = management_team_status,
            email = email,    
-           department = department, 
+           track = track, 
            access_token = access_token,
            refresh_token = refresh_token,                  
            password=password        
@@ -51,14 +51,13 @@ class User(AbstractBaseUser, PermissionsMixin):
    
    objects = UserManager()
    
-   name = models.CharField(max_length=10)
-   generation = models.IntegerField()
-   management_team_status = models.BooleanField(default=False)
-   email = models.CharField(max_length=254, unique=True)
-   department = models.IntegerField()
-   access_token = models.CharField(max_length=200)
-   refresh_token = models.CharField(max_length=200)
-   authentication_number = models.CharField(max_length=6, blank=True, null=True)
+   name = models.CharField(max_length=10, blank=True, null=True)
+   generation = models.IntegerField(blank=True, null=True)
+   email = models.CharField(max_length=254, unique=True, blank=True, null=True)
+   track = models.IntegerField(blank=True, null=True)
+   access_token = models.CharField(max_length=300)
+   refresh_token = models.CharField(max_length=300)
+   code = models.CharField(max_length=100, blank=True, null=True)
 
    is_active = models.BooleanField(default=False)
    is_admin = models.BooleanField(default=False)
@@ -67,8 +66,7 @@ class User(AbstractBaseUser, PermissionsMixin):
    REQUIRED_FIELDS = [
        'name',
        'generation',
-       'management_team_status',
-       'department',
+       'track',
        'access_token',
        'refresh_token'
    ]
@@ -79,3 +77,5 @@ class User(AbstractBaseUser, PermissionsMixin):
    @property
    def is_staff(self):
        return self.is_admin
+    
+    
