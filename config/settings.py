@@ -29,7 +29,7 @@ def get_secret(setting, secrets=secrets):
     except KeyError:
         error_msg = "Set the {} environment variable".format(setting)
         raise ImproperlyConfigured(error_msg)
-
+        
 SECRET_KEY = get_secret("SECRET_KEY")
 
 # Quick-start development settings - unsuitable for production
@@ -202,7 +202,7 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = '587'
 EMAIL_HOST_USER = 'polarpheno@gmail.com'
-EMAIL_HOST_PASSWORD = 'khmftyqpwjlrudty'
+EMAIL_HOST_PASSWORD = get_secret("HOST_PASSWORD")
 EMAIL_USE_TLS = True
 DEFAULT_FORM_EMAIL = EMAIL_HOST_USER
 ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 1

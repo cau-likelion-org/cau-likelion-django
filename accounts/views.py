@@ -128,7 +128,7 @@ class GoogleLogin(SocialLoginView):
     callback_url = GOOGLE_CALLBACK_URI
     client_class = OAuth2Client
 
-# 난수 6자리 생성
+# 인증코드 uuid 생상
 def create_code(email):
     time = pydatetime.datetime.now().timestamp()
     result = str(uuid.uuid5(uuid.NAMESPACE_URL, str(email)))
