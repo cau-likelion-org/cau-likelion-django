@@ -31,12 +31,12 @@ class UserManager(BaseUserManager):
    
        user = self.create_user( 
            name = name,  
-           generation = generation,     
+           generation = generation,
            email = email,    
            track = track, 
            access_token = access_token,
            refresh_token = refresh_token,                  
-           password=password        
+           password = password        
        )
        user.is_admin = True
        user.is_superuser = True

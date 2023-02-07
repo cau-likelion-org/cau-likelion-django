@@ -129,9 +129,9 @@ class GoogleLogin(SocialLoginView):
     client_class = OAuth2Client
 
 # 인증코드 uuid 생상
-def create_code(email):
+def create_code():
     time = pydatetime.datetime.now().timestamp()
-    result = str(uuid.uuid5(uuid.NAMESPACE_URL, str(email)))
+    result = str(uuid.uuid1())
     return result
 
 # 학교 메일 인증
