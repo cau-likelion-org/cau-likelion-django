@@ -24,15 +24,10 @@ import datetime as pydatetime
 BASE_URL = 'http://localhost:8000/'
 GOOGLE_CALLBACK_URI = BASE_URL + 'api/accounts/google/callback/'
 
+# request -> code, access token
 
-# 구글 로그인
-# 구글 로그인 창 나옴 & 로그인 후 callback url로 코드값 반환
-def google_login(request):
-    scope = "https://www.googleapis.com/auth/userinfo.email"
-    client_id = '312850794943-rogubu1don9b5fgn7tjf4jrf4ri98vcs.apps.googleusercontent.com'
-    return redirect(f"https://accounts.google.com/o/oauth2/v2/auth?client_id={client_id}&response_type=code&redirect_uri={GOOGLE_CALLBACK_URI}&scope={scope}")
-
-
+# access 있을때 -> 소셜로그인 O, 회원가입 X / 로그인
+# access 없을 때 -> 진짜 처음 소셜로그인 ('')
 
 # access token & 이메일 인증 요청 -> 회원가입 / 로그인 + jwt 토큰 발급
 def google_callback(request):
@@ -40,24 +35,27 @@ def google_callback(request):
     client_secret = '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'
     code = request.GET.get('code')
     state = 'state_parameter_passthrough_value'
+    access_token = request.data['access_token']
     
-     # 1. 받은 코드로 구글에 access token 요청
-    token_req = requests.post(f"https://oauth2.googleapis.com/token?client_id={client_id}&client_secret={client_secret}&code={code}&grant_type=authorization_code&redirect_uri={GOOGLE_CALLBACK_URI}&state={state}")
-    
-    ### 1-1. json으로 변환 & 에러 부분 파싱
-    token_req_json = token_req.json()
-    error = token_req_json.get("error")
+    if access_token == None:
+        # 아예 처음 소셜로그인 하는 사람 -> 구글에 요청 필요
+        # 1. 받은 코드로 구글에 access token 요청
+        token_req = requests.post(f"https://oauth2.googleapis.com/token?client_id={client_id}&client_secret={client_secret}&code={code}&grant_type=authorization_code&redirect_uri={GOOGLE_CALLBACK_URI}&state={state}")
+        
+        ### 1-1. json으로 변환 & 에러 부분 파싱
+        token_req_json = token_req.json()
+        error = token_req_json.get("error")
 
-    ### 1-2. 에러 발생 시 종료
-    if error is not None:
-        raise JSONDecodeError(error)
+        ### 1-2. 에러 발생 시 종료
+        if error is not None:
+            raise JSONDecodeError(error)
 
-    ### 1-3. 성공 시 access_token 가져오기
-    access_token = token_req_json.get('access_token')
+        ### 1-3. 성공 시 access_token 가져오기
+        access_token = token_req_json.get('access_token')
 
     #################################################################
-
-    # 2. 가져온 access_token으로 이메일값을 구글에 요청
+    
+    # 가져온 access_token으로 이메일값을 구글에 요청
     email_req = requests.get(f"https://www.googleapis.com/oauth2/v1/tokeninfo?access_token={access_token}")
     email_req_status = email_req.status_code
 
@@ -73,10 +71,16 @@ def google_callback(request):
 
     #################################################################
 
-    # 3. 전달받은 이메일, access_token, code를 바탕으로 회원가입/로그인
+    # 전달받은 이메일, access_token, code를 바탕으로 회원가입/로그인
     try:
         # 전달받은 이메일로 등록된 유저가 있는지 탐색
         user = User.objects.get(email=email)
+        
+        if user.is_active == False:
+            # active 안된거면 -> 소셜로그인은 했는데, 회원 가입 안한 사람
+            return JsonResponse({
+                'is_active' : user.is_active
+            })
         
         # Google & likelion으로 가입된 유저 => 로그인 & 해당 유저의 jwt 발급
         data = {'access_token': access_token, 'code': code}
@@ -96,7 +100,7 @@ def google_callback(request):
         # 전달받은 이메일로 기존에 가입된 유저가 아예 없으면 => 새로 회원가입 & 해당 유저의 jwt 발급
         # 이때 likelion & cau 메일 인증 필요
         
-        # 이메일이 @likelion.org 아닌 경우 오류 처리
+        # 이메일이 @likelion.org 아닌 경우 : status code, 에러로 처리
         if email.split('@')[1] != 'likelion.org':
             return JsonResponse({'err_msg' : 'no matching likelion'}, status=status.HTTP_400_BAD_REQUEST)
         
@@ -113,7 +117,10 @@ def google_callback(request):
 
         save_token(email, accept_json)
         
-        return JsonResponse(accept_json)
+        return JsonResponse({
+            'data' : accept_json,
+            'is_active' : user.is_active
+        })
 
 # 토큰 저장
 def save_token(email, token):
@@ -128,7 +135,7 @@ class GoogleLogin(SocialLoginView):
     callback_url = GOOGLE_CALLBACK_URI
     client_class = OAuth2Client
 
-# 인증코드 uuid 생상
+# 인증코드 uuid 생성
 def create_code():
     time = pydatetime.datetime.now().timestamp()
     result = str(uuid.uuid1())
@@ -138,7 +145,7 @@ def create_code():
 def cau_authentication(request):
     text_title = '[중앙대 멋사] 학교 계정 확인 메일 🦁'
     global code
-    code = create_code(request.data['email'])
+    code = create_code()
     text_content = '다음 인증 번호를 입력하여 회원 가입을 계속 진행해주세요\n' + code
     email = EmailMessage(text_title, text_content, to=[request.data['email']])
     result = email.send()
