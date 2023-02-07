@@ -8,5 +8,4 @@ urlpatterns = [
     path('authentication/', cau_authentication, name='school_email_authentiation'),
     path('caumail/', CauMailView.as_view()),
     path('user/', UserView.as_view()),
-
 ]
