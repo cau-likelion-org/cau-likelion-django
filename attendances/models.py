@@ -10,5 +10,5 @@ class Attendance(models.Model):
 class UserAttendance(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     attendance = models.ForeignKey(Attendance, on_delete=models.CASCADE)
-    time = models.DateTimeField(auto_now=True)
+    time = models.DateTimeField(auto_now_add=True)
     is_completed = models.IntegerField(default=0)
