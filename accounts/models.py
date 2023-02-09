@@ -66,7 +66,7 @@ class User(AbstractBaseUser, PermissionsMixin):
        'generation',
        'track',
        'access_token',
-       'refresh_token'
+       'refresh_token',
    ]
 
    def __str__(self):

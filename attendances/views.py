@@ -1,8 +1,12 @@
+from os import access
 from django.http import JsonResponse
 from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
+
+from config.permissions import IsManagementTeam
 from .serializers import AttendanceSerializer
+from rest_framework.permissions import IsAdminUser
 from accounts.models import User
 from .models import *
 import datetime
@@ -10,10 +14,12 @@ import datetime
 class AttendancveViewSet(ModelViewSet):
     queryset = Attendance.objects.all()
     serializer_class = AttendanceSerializer
+    permission_classes = [IsManagementTeam]
 
 attendance_list = AttendancveViewSet.as_view({
     'post':'create',
 })
+
 
 class AttendanceView(APIView):
     def post(request):
