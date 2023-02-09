@@ -4,7 +4,7 @@ from accounts.models import User
 
 # Create your models here.
 class Attendance(models.Model):
-    date = models.DateField(auto_now=True)
+    date = models.DateField(auto_now_add=True)
     password = models.CharField(max_length=10, blank=True, null=True)
 
 class UserAttendance(models.Model):
