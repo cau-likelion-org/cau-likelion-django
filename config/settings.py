@@ -61,6 +61,7 @@ PROJECT_APPS = [
     'lectures',
     'projects',
     'galleries',
+    'attendances',
 ]
 
 THIRD_PARTY_APPS = [

@@ -20,7 +20,7 @@ from django.core.mail import EmailMessage
 from rest_framework.views import APIView
 
 import uuid
-import datetime as pydatetime
+
 BASE_URL = 'http://localhost:8000/'
 GOOGLE_CALLBACK_URI = BASE_URL + 'api/accounts/google/callback/'
 
@@ -137,7 +137,6 @@ class GoogleLogin(SocialLoginView):
 
 # 인증코드 uuid 생성
 def create_code():
-    time = pydatetime.datetime.now().timestamp()
     result = str(uuid.uuid1())
     return result
 
@@ -178,6 +177,7 @@ class CauMailView(APIView):
     def get(self, request):
         code = cau_authentication(request)
         token = request.META.get('HTTP_AUTHORIZATION')
+        print(token)
         user = User.objects.get(access_token = token)
         user.code = code
         user.save()
