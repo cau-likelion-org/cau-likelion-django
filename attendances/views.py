@@ -1,4 +1,3 @@
-from os import access
 from django.http import JsonResponse
 from django.shortcuts import render
 from rest_framework.views import APIView
@@ -6,7 +5,6 @@ from rest_framework.viewsets import ModelViewSet
 
 from config.permissions import IsManagementTeam
 from .serializers import AttendanceSerializer, UserAttendanceSerializer
-from rest_framework.permissions import IsAdminUser
 from accounts.models import User
 from .models import *
 from datetime import datetime
@@ -38,14 +36,14 @@ class AttendanceView(APIView):
                 user = user,
                 attendance = attendance,
                 time = time,
-                is_completed = 1
+                attendance_result = 1
             )
-        elif time.seconds > 68700:
+        else:
             new_user_attendance = UserAttendance.objects.create(
                 user = user,
                 attendance = attendance,
                 time = time,
-                is_completed = 2
+                attendance_result = 2
             )
         
         return JsonResponse({
@@ -54,7 +52,7 @@ class AttendanceView(APIView):
             'data':{
                 'name':user.name,
                 'track':user.track,
-                'is_completed':new_user_attendance.is_completed
+                'attendance_result':new_user_attendance.attendance_result
             }
         })
 

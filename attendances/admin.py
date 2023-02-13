@@ -6,5 +6,6 @@ from .models import Attendance, UserAttendance
 class AttendanceAdmin(admin.ModelAdmin):
     list_display = ['id', 'date', 'password']
 
+@admin.register(UserAttendance)
 class UserAttendance(admin.ModelAdmin):
-    list_display = ['id', 'time', 'user', 'attedance','is_completed']
+    list_display = ['id', 'time', 'user', 'attendance','attendance_result']

@@ -7,6 +7,7 @@ from accounts.serializers import UserSerializer
 from dj_rest_auth.registration.views import SocialLoginView
 from allauth.socialaccount.providers.oauth2.client import OAuth2Client
 from allauth.socialaccount.providers.google import views as google_view
+from rest_framework_simplejwt.serializers import RefreshToken
 
 from json import JSONDecodeError
 from django.http import HttpResponse, JsonResponse
