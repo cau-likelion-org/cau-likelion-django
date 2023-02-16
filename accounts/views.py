@@ -16,14 +16,19 @@ from django.conf import settings
 
 from json import JSONDecodeError
 from django.http import HttpResponse, JsonResponse
+
 import requests
 from rest_framework import status
+
 from .models import *
+from .serializers import *
+
 from allauth.socialaccount.models import SocialAccount
 
 from django.core.mail import EmailMessage
 
 from rest_framework.views import APIView
+from rest_framework.response import Response
 
 import uuid
 
@@ -38,7 +43,7 @@ GOOGLE_CALLBACK_URI = BASE_URL + 'api/accounts/google/callback/'
 # access token & 이메일 인증 요청 -> 회원가입 / 로그인 + jwt 토큰 발급
 def google_callback(request):
     client_id = '312850794943-rogubu1don9b5fgn7tjf4jrf4ri98vcs.apps.googleusercontent.com'
-    client_secret = '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'
+    client_secret = settings.CLIENT_SECRET
     code = request.GET.get('code')
     state = 'state_parameter_passthrough_value'
     access_token = request.data['access_token']
@@ -141,7 +146,63 @@ class GoogleLogin(SocialLoginView):
     callback_url = GOOGLE_CALLBACK_URI
     client_class = OAuth2Client
 
-# 인증코드 uuid 생성
+
+
+
+
+# 추가 정보 기입
+class ProfileView(APIView):
+    serializer_class = UserSerializer
+    
+# 초기 사용자 -> 회원 정보 넘어온 데이터로 update
+    def put(self, request):
+        token = request.META.get('HTTP_AUTHORIZATION')
+        user = User.objects.get(access_token=token)
+            
+        update_serial = UserSerializer(user, data=request.data)
+    
+        if update_serial.is_valid():
+            update_serial.save()
+            
+            # 아이디 활성화
+            user.is_active = True
+            user.save()
+            
+            serializer = UserSerializer(user)
+    
+            return Response(data={
+                "message" : 'success',
+                "data" : {
+                    "user" : serializer.data
+                }
+            }, status=status.HTTP_200_OK)
+        else:
+            return Response(data={
+                "message" : 'update_serial is not valid'
+            }, status=status.HTTP_400_BAD_REQUEST)
+            
+# 기사용자 -> 회원 정보 return
+    def get(self, request):
+        token = request.META.get('HTTP_AUTHORIZATION')
+        user = User.objects.get(access_token=token)
+        
+        if user.is_active == False:
+            return Response(data={
+                "message" : 'user is not activated yet'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        serializer = UserSerializer(user)
+        
+        return Response(data={
+                "message" : 'success',
+                "data" : {
+                    "user" : serializer.data
+                }
+            }, status=status.HTTP_200_OK)
+        
+
+
+# 인증코드 uuid 생성 (uuid1 : HostID, 현재 시간)
 def create_code():
     result = str(uuid.uuid1())
     return result
@@ -159,61 +220,20 @@ def cau_authentication(request):
     content = "내용"
     sender_email = settings.EMAIL_HOST_USER
     send_mail(subject, content, sender_email, [to_email], html_message=html_content)
+    
     return code
-
-
-# 초기 사용자 (is_active = False) 회원 정보 입력 (patch)
-# 기사용자 (is_active = True) 회원 정보 return
-
-
-# 추가 정보 기입
-class UserView(APIView):
-
-# 초기 사용자 -> 회원 정보 넘어온 데이터로 update
-    def patch(self, request):
-        token = request.META.get('HTTP_AUTHORIZATION')
-        user = User.objects.get(access_token=token)
-        
-        if user.is_active == False:
-            user.name = request.data['name']
-            user.generation = request.data['generation']
-            user.track = request.data['track']
-            user.is_admin = request.data['is_admin']
-            user.is_active = True
-            user.save()
-            
-        return JsonResponse({
-            'name':user.name,
-            'generation':user.generation,
-            'track':user.track,
-            'is_admin':user.is_admin,
-        })
-
-# 기사용자 -> 회원 정보 return
-    def get(self, request):
-        token = request.META.get('HTTP_AUTHORIZATION')
-        user = User.objects.get(access_token=token)
-        
-        if user.is_active == True:
-            return JsonResponse({
-                'name' : user.name,
-                'generation' : user.generation,
-                'track' : user.track,
-                'is_admin' : user.is_admin
-            })
 
 class CauMailView(APIView):
     
     def get(self, request):
         code = cau_authentication(request)
         token = request.META.get('HTTP_AUTHORIZATION')
-        print(token)
         user = User.objects.get(access_token = token)
         user.code = code
         user.save()
         return JsonResponse({
-            'code':code,
-        }, safe=False)
+            'code' : code,
+        }, safe=False, status = 200)
     
     def post(self, request):
         token = request.META.get('HTTP_AUTHORIZATION')
