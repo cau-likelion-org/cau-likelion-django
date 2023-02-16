@@ -82,7 +82,7 @@ def google_callback(request):
                 'is_active' : user.is_active
             })
         
-        # Google & likelion으로 가입된 유저 => 로그인 & 해당 유저의 jwt 발급
+        # 기 사용자 => 로그인 & 해당 유저의 jwt 발급
         data = {'access_token': access_token, 'code': code}
         accept = requests.post(f"{BASE_URL}api/accounts/google/login/finish/", data=data)
         accept_status = accept.status_code
@@ -150,27 +150,46 @@ def cau_authentication(request):
     result = email.send()
     return code
 
-#추가 정보 기입
+
+# 초기 사용자 (is_active = False) 회원 정보 입력 (patch)
+# 기사용자 (is_active = True) 회원 정보 return
+
+
+# 추가 정보 기입
 class UserView(APIView):
-    def post(self, request):
+
+# 초기 사용자 -> 회원 정보 넘어온 데이터로 update
+    def patch(self, request):
         token = request.META.get('HTTP_AUTHORIZATION')
         user = User.objects.get(access_token=token)
-        user.name = request.data['name']
-        user.generation = request.data['generation']
-        user.track = request.data['track']
-        user.is_admin = request.data['is_admin']
-        user.is_active = True
-        user.save()
+        
+        if user.is_active == False:
+            user.name = request.data['name']
+            user.generation = request.data['generation']
+            user.track = request.data['track']
+            user.is_admin = request.data['is_admin']
+            user.is_active = True
+            user.save()
+            
         return JsonResponse({
             'name':user.name,
             'generation':user.generation,
             'track':user.track,
             'is_admin':user.is_admin,
         })
-    
+
+# 기사용자 -> 회원 정보 return
     def get(self, request):
         token = request.META.get('HTTP_AUTHORIZATION')
         user = User.objects.get(access_token=token)
+        
+        if user.is_active == True:
+            return JsonResponse({
+                'name' : user.name,
+                'generation' : user.generation,
+                'track' : user.track,
+                'is_admin' : user.is_admin
+            })
 
 class CauMailView(APIView):
     
