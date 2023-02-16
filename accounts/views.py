@@ -1,3 +1,5 @@
+import email
+from email.mime.text import MIMEText
 from http.client import OK
 import os
 import re
@@ -7,6 +9,10 @@ from accounts.serializers import UserSerializer
 from dj_rest_auth.registration.views import SocialLoginView
 from allauth.socialaccount.providers.oauth2.client import OAuth2Client
 from allauth.socialaccount.providers.google import views as google_view
+from rest_framework_simplejwt.serializers import RefreshToken
+from django.template.loader import render_to_string
+from django.core.mail import send_mail
+from django.conf import settings
 
 from json import JSONDecodeError
 from django.http import HttpResponse, JsonResponse
@@ -145,9 +151,14 @@ def cau_authentication(request):
     text_title = '[중앙대 멋사] 학교 계정 확인 메일 🦁'
     global code
     code = create_code()
-    text_content = '다음 인증 번호를 입력하여 회원 가입을 계속 진행해주세요\n' + code
-    email = EmailMessage(text_title, text_content, to=[request.data['email']])
-    result = email.send()
+    html_content = render_to_string('accounts/mail_template.html', {
+        "code":code
+    })
+    to_email = request.data['email']
+    subject = "제목"
+    content = "내용"
+    sender_email = settings.EMAIL_HOST_USER
+    send_mail(subject, content, sender_email, [to_email], html_message=html_content)
     return code
 
 

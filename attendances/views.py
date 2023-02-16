@@ -1,55 +1,50 @@
-from lib2to3.pgen2 import token
 from django.http import JsonResponse
 from django.shortcuts import render
 from rest_framework.views import APIView
+from rest_framework.viewsets import ModelViewSet
+
+from config.permissions import IsManagementTeam
+from .serializers import AttendanceSerializer, UserAttendanceSerializer
 from accounts.models import User
 from .models import *
-import datetime
+from datetime import datetime
 
-def create_password(request):
-    if request.method == "POST":
-        token = request.META.get('HTTP_AUTHORIZATION')
-        user = User.objects.get(access_token=token)
-        
-        if user.is_admin != True:
-            return JsonResponse('운영진만 접근할 수 있습니다.')
-        
-        new_attendance = Attendance.objects.create(
-            password = request.data['password'],
-        )
+class AttendancveViewSet(ModelViewSet):
+    queryset = Attendance.objects.all()
+    serializer_class = AttendanceSerializer
+    permission_classes = [IsManagementTeam]
 
-        return JsonResponse({
-            'status':200,
-            'success':True,
-            'message':'출석부 생성 성공'
-        })
+attendance_list = AttendancveViewSet.as_view({
+    'post':'create',
+})
 
-    return JsonResponse({
-            'status':405,
-            'success':False,
-            'message':'출석부 생성 실패'
-        })
-        
 class AttendanceView(APIView):
-    def post(request):
+    def post(self, request):
         token = request.META.get('HTTP_AUTHORIZATION')
-        today = datetime.datatime.now().date()
-        now = datetime.datatime.now()
-        attendance = Attendance.objects.get(date=today)
+        today = datetime.now().date()
+        now = datetime.now()
 
+        attendance = Attendance.objects.get(date=today)
         #비밀번호가 틀린 경우
         if attendance.password != request.data['password']:
             return JsonResponse('비밀번호가 틀렸습니다.')
 
         user = User.objects.get(access_token=token)
-        time = now - today
-
-        new_user_attendance = UserAttendance.objects.create(
-            user = user,
-            attendance = attendance,
-            time = time,
-            is_completed = 1
-        )
+        time = now - datetime.strptime(now.strftime("%Y%m%d"), "%Y%m%d")
+        if time.seconds < 68700:
+            new_user_attendance = UserAttendance.objects.create(
+                user = user,
+                attendance = attendance,
+                time = time,
+                attendance_result = 1
+            )
+        else:
+            new_user_attendance = UserAttendance.objects.create(
+                user = user,
+                attendance = attendance,
+                time = time,
+                attendance_result = 2
+            )
         
         return JsonResponse({
             'status':200,
@@ -57,6 +52,7 @@ class AttendanceView(APIView):
             'data':{
                 'name':user.name,
                 'track':user.track,
+                'attendance_result':new_user_attendance.attendance_result
             }
         })
 
