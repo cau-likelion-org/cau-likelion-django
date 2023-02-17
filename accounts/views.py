@@ -3,6 +3,7 @@ from email.mime.text import MIMEText
 from http.client import OK
 import os
 import re
+from urllib import response
 from django.shortcuts import render, redirect
 from accounts.serializers import UserSerializer
 
@@ -31,6 +32,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 
 import uuid
+import jwt
 
 BASE_URL = 'http://localhost:8000/'
 GOOGLE_CALLBACK_URI = BASE_URL + 'api/accounts/google/callback/'
@@ -46,7 +48,6 @@ def google_callback(request):
     client_secret = settings.CLIENT_SECRET
     code = request.GET.get('code')
     state = 'state_parameter_passthrough_value'
-    access_token = request.data['access_token']
     
     if access_token == None:
         # 아예 처음 소셜로그인 하는 사람 -> 구글에 요청 필요
@@ -67,88 +68,118 @@ def google_callback(request):
     #################################################################
     
     # 가져온 access_token으로 이메일값을 구글에 요청
-    email_req = requests.get(f"https://www.googleapis.com/oauth2/v1/tokeninfo?access_token={access_token}")
-    email_req_status = email_req.status_code
+    response = requests.get(f"https://oauth2.googleapis.com/tokeninfo?access_token={access_token}")
+    email_req_status = response.status_code
 
     ### 2-1. 에러 발생 시 400 에러 반환
     if email_req_status != 200:
         return JsonResponse({'err_msg': 'failed to get email'}, status=status.HTTP_400_BAD_REQUEST)
     
     ### 2-2. 성공 시 이메일 가져오기
-    email_req_json = email_req.json()
-    email = email_req_json.get('email')
+    user = response.json()
+    email = user.get('email')
 
     # return JsonResponse({'access': access_token, 'email':email})
 
     #################################################################
 
     # 전달받은 이메일, access_token, code를 바탕으로 회원가입/로그인
-    try:
-        # 전달받은 이메일로 등록된 유저가 있는지 탐색
-        user = User.objects.get(email=email)
+    # try:
+    #     # 전달받은 이메일로 등록된 유저가 있는지 탐색
+    #     user = User.objects.get(email=email)
         
-        if user.is_active == False:
-            # active 안된거면 -> 소셜로그인은 했는데, 회원 가입 안한 사람
-            return JsonResponse({
-                'is_active' : user.is_active
-            })
+    #     if user.is_active == False:
+    #         # active 안된거면 -> 소셜로그인은 했는데, 회원 가입 안한 사람
+    #         return JsonResponse({
+    #             'is_active' : user.is_active
+    #         })
         
-        # 기 사용자 => 로그인 & 해당 유저의 jwt 발급
-        data = {'access_token': access_token, 'code': code}
-        accept = requests.post(f"{BASE_URL}api/accounts/google/login/finish/", data=data)
-        accept_status = accept.status_code
+    #     # 기 사용자 => 로그인 & 해당 유저의 jwt 발급
+    #     data = {'access_token': access_token, 'code': code}
+    #     accept = requests.post(f"{BASE_URL}api/accounts/google/login/finish/", data=data)
+    #     accept_status = accept.status_code
 
-        # 뭔가 중간에 문제가 생기면 에러
-        if accept_status != 200:
-            return JsonResponse({'err_msg': 'failed to signin'}, status=accept_status)
+    #     # 뭔가 중간에 문제가 생기면 에러
+    #     if accept_status != 200:
+    #         return JsonResponse({'err_msg': 'failed to signin'}, status=accept_status)
 
-        accept_json = accept.json()
-        accept_json.pop('user', None)
+    #     accept_json = accept.json()
+    #     accept_json.pop('user', None)
         
-        return JsonResponse(accept_json)
+    #     return JsonResponse(accept_json)
     
-    except User.DoesNotExist:
-        # 전달받은 이메일로 기존에 가입된 유저가 아예 없으면 => 새로 회원가입 & 해당 유저의 jwt 발급
-        # 이때 likelion & cau 메일 인증 필요
+    # except User.DoesNotExist:
+    #     # 전달받은 이메일로 기존에 가입된 유저가 아예 없으면 => 새로 회원가입 & 해당 유저의 jwt 발급
+    #     # 이때 likelion & cau 메일 인증 필요
         
-        # 이메일이 @likelion.org 아닌 경우 : status code, 에러로 처리
+    #     # 이메일이 @likelion.org 아닌 경우 : status code, 에러로 처리
+    #     if email.split('@')[1] != 'likelion.org':
+    #         return JsonResponse({'err_msg' : 'no matching likelion'}, status=status.HTTP_400_BAD_REQUEST)
+        
+    #     data = {'access_token': access_token, 'code': code}
+    #     accept = requests.post(f"{BASE_URL}api/accounts/google/login/finish/", data=data)
+    #     accept_status = accept.status_code
+
+    #     # 뭔가 중간에 문제가 생기면 에러
+    #     if accept_status != 200:
+    #         return JsonResponse({'err_msg': 'failed to signup'}, status=accept_status)
+
+    #     accept_json = accept.json()
+    #     accept_json.pop('user', None)
+
+    #     save_token(email, accept_json)
+        
+    #     return JsonResponse({
+    #         'data' : accept_json,
+    #         'is_active' : user.is_active
+    #     })
+
+    # 전달 받은 social_id로 user가 있는지 확인
+    if User.objects.filter(social_id=user['sub']).exists():
+        user_info = User.objects.get(social_id=user['sub'])
+
+        # 소셜 로그인은 했는데 회원가입 안한 사람
+        if user_info.is_active == False:
+            return JsonResponse({
+                "is_active":user_info.is_active,
+            }, status=200)
+        
+        encoded_jwt = jwt.encodef({'id':user_info.id}, settings.WEF_KEY, algorithm='HS256')
+
+        return JsonResponse({
+            'access_token':encoded_jwt,
+            'is_active':user_info.is_active
+        }, status=200)
+    # 아예 회원가입 안한 사람
+    else:
+        # 이메일이 @likelion.org 아닌 경우 오류 처리
         if email.split('@')[1] != 'likelion.org':
             return JsonResponse({'err_msg' : 'no matching likelion'}, status=status.HTTP_400_BAD_REQUEST)
         
-        data = {'access_token': access_token, 'code': code}
-        accept = requests.post(f"{BASE_URL}api/accounts/google/login/finish/", data=data)
-        accept_status = accept.status_code
+        new_user_info = User.objects.create( # 처음으로 소셜로그인을 했을 경우 회원의 정보를 저장(email이 없을 수도 있다 하여, 있으면 저장하고, 없으면 None으로 표기)
+            social_id = user['sub'],
+            email = user.get('email', None)
+        )
+        new_user_info.save()
 
-        # 뭔가 중간에 문제가 생기면 에러
-        if accept_status != 200:
-            return JsonResponse({'err_msg': 'failed to signup'}, status=accept_status)
+        encoded_jwt = jwt.encodef({'id':user_info.id}, settings.WEF_KEY, algorithm='HS256')
 
-        accept_json = accept.json()
-        accept_json.pop('user', None)
-
-        save_token(email, accept_json)
-        
         return JsonResponse({
-            'data' : accept_json,
-            'is_active' : user.is_active
+            'is_active':new_user_info.is_active
         })
 
-# 토큰 저장
-def save_token(email, token):
-    user = User.objects.get(email=email)
-    user.access_token = token.get('access_token')
-    user.refresh_token = token.get('refresh_token')
-    user.save()
+# # 토큰 저장
+# def save_token(email, token):
+#     user = User.objects.get(email=email)
+#     user.access_token = token.get('access_token')
+#     user.refresh_token = token.get('refresh_token')
+#     user.save()
 
 # 구글 소셜 로그인 뷰
 class GoogleLogin(SocialLoginView):
     adapter_class = google_view.GoogleOAuth2Adapter
     callback_url = GOOGLE_CALLBACK_URI
     client_class = OAuth2Client
-
-
-
-
 
 # 추가 정보 기입
 class ProfileView(APIView):
