@@ -30,6 +30,8 @@ class Project(models.Model):
     link = models.JSONField(default=dict)
     # 13. 카테고리
     category = models.CharField(max_length=100)
+    # 14. 부제목
+    subtitle = models.TextField(max_length = 200, default='')
 
     class Meta:
         verbose_name = '프로젝트'
@@ -48,8 +50,6 @@ class Project(models.Model):
 #     type = models.CharField(max_length=100, choices = CHOICES)
 #     src = models.URLField(max_length=1024)
 #     project = models.ForeignKey(Project, on_delete = models.CASCADE, db_column='project')
-
-
 
 class ProjectImage(models.Model):
     # 1. 사진 id 값
