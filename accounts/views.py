@@ -17,6 +17,7 @@ from json import JSONDecodeError
 from django.http import HttpResponse, JsonResponse
 
 import requests
+from datetime import datetime
 from rest_framework import status
 
 from .models import *
@@ -31,6 +32,7 @@ from rest_framework.response import Response
 
 import uuid
 import jwt
+import json
 
 BASE_URL = 'http://localhost:8000/'
 GOOGLE_CALLBACK_URI = BASE_URL + 'api/accounts/google/callback/'
@@ -44,7 +46,8 @@ GOOGLE_CALLBACK_URI = BASE_URL + 'api/accounts/google/callback/'
 def google_callback(request):
     client_id = '312850794943-rogubu1don9b5fgn7tjf4jrf4ri98vcs.apps.googleusercontent.com'
     client_secret = settings.CLIENT_SECRET
-    code = request.GET.get('code')
+    body = json.loads(request.body.decode('utf-8'))
+    code = body['code']
     state = 'state_parameter_passthrough_value'
     
     # 1. 받은 코드로 구글에 access token 요청
@@ -211,3 +214,10 @@ class CauMailView(APIView):
         if request.data['code'] != code:
             return Response(False, safe=False)
         return Response(True, safe=False)
+
+# def generate_access_token(user_id):
+#     access_token_payload =  {
+#         "id": user_id,
+#         "exp": datetime.utcnow() + datetime.timedelta(days=7),
+#         "iat": 
+#     }
