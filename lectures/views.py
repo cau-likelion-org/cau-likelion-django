@@ -1,3 +1,10 @@
-from django.shortcuts import render
+# 데이터 처리
+from .models import Session,SessionImage
+from .serializers import SessionSerializer, SessionImageSerializer
 
-# Create your views here.
+from rest_framework import viewsets
+from django.http import Http404
+
+class SessionViewSet(viewsets.ModelViewSet):
+    queryset = Session.objects.all()
+    serializer_class = SessionSerializer
