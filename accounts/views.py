@@ -144,7 +144,7 @@ def google_callback(request):
                 "is_active":user_info.is_active,
             }, status=200)
         
-        encoded_jwt = jwt.encodef({'id':user_info.id}, settings.WEF_KEY, algorithm='HS256')
+        encoded_jwt = jwt.encode({'id':user_info.id}, settings.WEF_KEY, algorithm='HS256')
 
         return JsonResponse({
             'access_token':encoded_jwt,
@@ -162,7 +162,7 @@ def google_callback(request):
         )
         new_user_info.save()
 
-        encoded_jwt = jwt.encodef({'id':user_info.id}, settings.WEF_KEY, algorithm='HS256')
+        encoded_jwt = jwt.encode({'id':user_info.id}, settings.WEF_KEY, algorithm='HS256')
 
         return JsonResponse({
             'is_active':new_user_info.is_active
