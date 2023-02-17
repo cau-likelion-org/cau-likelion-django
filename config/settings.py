@@ -40,7 +40,7 @@ SECRET_KEY = get_secret("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -61,6 +61,7 @@ PROJECT_APPS = [
     'lectures',
     'projects',
     'galleries',
+    'attendances',
 ]
 
 THIRD_PARTY_APPS = [
@@ -213,3 +214,6 @@ EMAIL_HOST_PASSWORD = get_secret("HOST_PASSWORD")
 EMAIL_USE_TLS = True
 DEFAULT_FORM_EMAIL = EMAIL_HOST_USER
 ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 1
+CLIENT_SECRET = get_secret("CLIENT_SECRET")
+
+WEF_KEY = get_secret("WEF_KEY")

@@ -9,6 +9,5 @@ class UserSerializer(serializers.ModelSerializer):
             'name',
             'generation',
             'track',
-            'management_team_status',
-            'email',
+            'is_admin'
         ]
