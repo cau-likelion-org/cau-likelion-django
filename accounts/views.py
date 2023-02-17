@@ -1,5 +1,3 @@
-import email
-from email.mime.text import MIMEText
 from http.client import OK
 import os
 import re
@@ -49,21 +47,19 @@ def google_callback(request):
     code = request.GET.get('code')
     state = 'state_parameter_passthrough_value'
     
-    if access_token == None:
-        # 아예 처음 소셜로그인 하는 사람 -> 구글에 요청 필요
-        # 1. 받은 코드로 구글에 access token 요청
-        token_req = requests.post(f"https://oauth2.googleapis.com/token?client_id={client_id}&client_secret={client_secret}&code={code}&grant_type=authorization_code&redirect_uri={GOOGLE_CALLBACK_URI}&state={state}")
-        
-        ### 1-1. json으로 변환 & 에러 부분 파싱
-        token_req_json = token_req.json()
-        error = token_req_json.get("error")
+    # 1. 받은 코드로 구글에 access token 요청
+    token_req = requests.post(f"https://oauth2.googleapis.com/token?client_id={client_id}&client_secret={client_secret}&code={code}&grant_type=authorization_code&redirect_uri={GOOGLE_CALLBACK_URI}&state={state}")
+    
+    ### 1-1. json으로 변환 & 에러 부분 파싱
+    token_req_json = token_req.json()
+    error = token_req_json.get("error")
 
-        ### 1-2. 에러 발생 시 종료
-        if error is not None:
-            raise JSONDecodeError(error)
+    ### 1-2. 에러 발생 시 종료
+    if error is not None:
+        raise JSONDecodeError(error)
 
-        ### 1-3. 성공 시 access_token 가져오기
-        access_token = token_req_json.get('access_token')
+    ### 1-3. 성공 시 access_token 가져오기
+    access_token = token_req_json.get('access_token')
 
     #################################################################
     
@@ -78,6 +74,7 @@ def google_callback(request):
     ### 2-2. 성공 시 이메일 가져오기
     user = response.json()
     email = user.get('email')
+    sub = user.get('sub')
 
     # return JsonResponse({'access': access_token, 'email':email})
 
@@ -135,8 +132,8 @@ def google_callback(request):
     #     })
 
     # 전달 받은 social_id로 user가 있는지 확인
-    if User.objects.filter(social_id=user['sub']).exists():
-        user_info = User.objects.get(social_id=user['sub'])
+    if User.objects.filter(social_id=sub).exists():
+        user_info = User.objects.get(social_id=sub)
         encoded_jwt = jwt.encode({'id':user_info.id}, settings.WEF_KEY, algorithm='HS256')
 
         # 소셜 로그인은 했는데 회원가입 안한 사람
@@ -151,7 +148,7 @@ def google_callback(request):
             return JsonResponse({'err_msg' : 'no matching likelion'}, status=status.HTTP_400_BAD_REQUEST)
         
         new_user_info = User.objects.create( # 처음으로 소셜로그인을 했을 경우 회원의 정보를 저장(email이 없을 수도 있다 하여, 있으면 저장하고, 없으면 None으로 표기)
-            social_id = user['sub'],
+            social_id = sub,
             email = user.get('email', None)
         )
         new_user_info.save()
@@ -183,8 +180,10 @@ class ProfileView(APIView):
 # 초기 사용자 -> 회원 정보 넘어온 데이터로 update
     def put(self, request):
         token = request.META.get('HTTP_AUTHORIZATION')
-        user = User.objects.get(access_token=token)
-            
+        # user = User.objects.get(access_token=token)
+        payload = jwt.decode(token, settings.WEF_KEY, algorithm='HS256')
+        user = User.objects.get(id=payload.get('id'))
+
         update_serial = UserSerializer(user, data=request.data)
     
         if update_serial.is_valid():
@@ -210,7 +209,9 @@ class ProfileView(APIView):
 # 기사용자 -> 회원 정보 return
     def get(self, request):
         token = request.META.get('HTTP_AUTHORIZATION')
-        user = User.objects.get(access_token=token)
+        # user = User.objects.get(access_token=token)
+        payload = jwt.decode(token, settings.WEF_KEY, algorithm='HS256')
+        user = User.objects.get(id=payload.get('id'))
         
         if user.is_active == False:
             return Response(data={
@@ -254,7 +255,9 @@ class CauMailView(APIView):
     def get(self, request):
         code = cau_authentication(request)
         token = request.META.get('HTTP_AUTHORIZATION')
-        user = User.objects.get(access_token = token)
+        # user = User.objects.get(access_token = token)
+        payload = jwt.decode(token, settings.WEF_KEY, algorithm='HS256')
+        user = User.objects.get(id=payload.get('id'))
         user.code = code
         user.save()
         return JsonResponse({
@@ -263,7 +266,9 @@ class CauMailView(APIView):
     
     def post(self, request):
         token = request.META.get('HTTP_AUTHORIZATION')
-        code = User.objects.get(access_token = token).code
+        # code = User.objects.get(access_token = token).code
+        payload = jwt.decode(token, settings.WEF_KEY, algorithm='HS256')
+        user = User.objects.get(id=payload.get('id')).code
         if request.data['code'] != code:
-            return JsonResponse('False', safe=False)
-        return JsonResponse('True', safe=False)
+            return Response(False, safe=False)
+        return Response(True, safe=False)
