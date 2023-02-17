@@ -6,7 +6,7 @@ class UserManager(BaseUserManager):
    
    use_in_migrations = True    
    
-   def create_user(self, name, generation, email, track, access_token, refresh_token, password):        
+   def create_user(self, name, generation, email, track, password):        
        
        if not email:            
            raise ValueError('must have user email')
@@ -18,8 +18,6 @@ class UserManager(BaseUserManager):
            generation = generation,     
            email = email,    
            track = track, 
-           access_token = access_token,
-           refresh_token = refresh_token, 
        )        
        user.set_password(password)   
        user.is_admin = True
@@ -27,15 +25,13 @@ class UserManager(BaseUserManager):
        user.save(using=self._db)        
        return user
 
-   def create_superuser(self, name, generation, email, track, access_token, refresh_token, password):        
+   def create_superuser(self, name, generation, email, track, password):        
    
        user = self.create_user( 
            name = name,  
            generation = generation,
            email = email,    
-           track = track, 
-           access_token = access_token,
-           refresh_token = refresh_token,                  
+           track = track,                
            password = password        
        )
        user.is_admin = True
@@ -49,12 +45,11 @@ class User(AbstractBaseUser, PermissionsMixin):
    
    objects = UserManager()
    
-   name = models.CharField(max_length=10, blank=True, null=True)
+   name = models.CharField(max_length=10, blank=True, null=True),
+   social_id = models.CharField(max_length=50, blank=True, null=True)
    generation = models.IntegerField(blank=True, null=True)
    email = models.CharField(max_length=254, unique=True, blank=True, null=True)
    track = models.IntegerField(blank=True, null=True)
-   access_token = models.CharField(max_length=300)
-   refresh_token = models.CharField(max_length=300)
    code = models.CharField(max_length=100, blank=True, null=True)
 
    is_active = models.BooleanField(default=False)
@@ -64,9 +59,7 @@ class User(AbstractBaseUser, PermissionsMixin):
    REQUIRED_FIELDS = [
        'name',
        'generation',
-       'track',
-       'access_token',
-       'refresh_token',
+       'track'
    ]
 
    def __str__(self):
