@@ -15,7 +15,7 @@ class Gallery(models.Model):
     # 5. 글 내용
     description = models.TextField(null=True, blank = True, verbose_name = "글 내용")
     # 6. 날짜
-    date = models.CharField(max_length = 30, null = True, blank = True)
+    date = models.CharField(max_length = 30, default = '')
 
     class Meta:
         verbose_name = '갤러리'
