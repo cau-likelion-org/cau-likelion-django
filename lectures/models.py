@@ -3,6 +3,12 @@ from django.conf import settings
 from accounts.models import User
 
 class Session(models.Model):
+    CHOICES = (
+        ('front', 'front'),
+        ('back', 'back'),
+        ('desing', 'design'),
+        ('pm', 'pm')
+    )
     # 1. 게시글의 id 값
     session_id = models.AutoField(primary_key=True, null=False, blank=False)
     # 2. 작성자 id 값
@@ -11,7 +17,7 @@ class Session(models.Model):
     # 3. 글 제목
     title = models.CharField(max_length= 50)
     # 4 트랙
-    track = models.IntegerField(null=False, blank = False, verbose_name='트랙')
+    track = models.CharField(choices = CHOICES , max_length = 10, null=False, blank = False, verbose_name='트랙')
     # 5. 썸네일
     thumbnail = models.ImageField(verbose_name = "썸네일", max_length=200)
     # 6. 글 내용
@@ -22,6 +28,10 @@ class Session(models.Model):
     topic = models.CharField(max_length=50, verbose_name='세션 주제')
     # 9. 몇차 세션
     degree = models.IntegerField(verbose_name= '세션 차수', null = True, blank = True)
+    # 10. 세션 레퍼런스 pdf
+    reference = models.URLField(max_length=1024, default='')
+    # 11. 세션 날짜
+    date = models.CharField(max_length=20, default='')
     
     class Meta:
         verbose_name = '세션'
