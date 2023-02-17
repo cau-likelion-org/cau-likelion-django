@@ -69,10 +69,10 @@ def google_callback(request):
     
     # 가져온 access_token으로 이메일값을 구글에 요청
     response = requests.get(f"https://oauth2.googleapis.com/tokeninfo?access_token={access_token}")
-    email_req_status = response.status_code
+    status = response.status_code
 
     ### 2-1. 에러 발생 시 400 에러 반환
-    if email_req_status != 200:
+    if status != 200:
         return JsonResponse({'err_msg': 'failed to get email'}, status=status.HTTP_400_BAD_REQUEST)
     
     ### 2-2. 성공 시 이메일 가져오기
@@ -137,15 +137,9 @@ def google_callback(request):
     # 전달 받은 social_id로 user가 있는지 확인
     if User.objects.filter(social_id=user['sub']).exists():
         user_info = User.objects.get(social_id=user['sub'])
-
-        # 소셜 로그인은 했는데 회원가입 안한 사람
-        if user_info.is_active == False:
-            return JsonResponse({
-                "is_active":user_info.is_active,
-            }, status=200)
-        
         encoded_jwt = jwt.encode({'id':user_info.id}, settings.WEF_KEY, algorithm='HS256')
 
+        # 소셜 로그인은 했는데 회원가입 안한 사람
         return JsonResponse({
             'access_token':encoded_jwt,
             'is_active':user_info.is_active
@@ -165,6 +159,7 @@ def google_callback(request):
         encoded_jwt = jwt.encode({'id':user_info.id}, settings.WEF_KEY, algorithm='HS256')
 
         return JsonResponse({
+            'access_token':encoded_jwt,
             'is_active':new_user_info.is_active
         })
 
