@@ -93,7 +93,7 @@ def google_callback(request):
         if email.split('@')[1] != 'likelion.org':
             return JsonResponse({'err_msg' : 'no matching likelion'}, status=status.HTTP_400_BAD_REQUEST)
         
-        new_user_info = User.objects.create( # 처음으로 소셜로그인을 했을 경우 회원의 정보를 저장(email이 없을 수도 있다 하여, 있으면 저장하고, 없으면 None으로 표기)
+        new_user_info = User.objects.create(
             social_id = sub,
             email = email
         )
