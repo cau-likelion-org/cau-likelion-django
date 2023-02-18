@@ -15,7 +15,7 @@ Django==4.1.5
 django-allauth==0.51.0
 django-storages==1.13.2
 djangorestframework==3.14.0
-djangorestframework-simplejwt==5.2.2
+djangorestframework-simplejwt==5.0.0
 executing==1.2.0
 ez-setup==0.9
 idna==3.4
@@ -28,6 +28,7 @@ oauthlib==3.2.2
 parso==0.8.3
 pexpect==4.8.0
 pickleshare==0.7.5
+Pillow==9.4.0
 prompt-toolkit==3.0.36
 ptyprocess==0.7.0
 pure-eval==0.2.2
