@@ -1,9 +1,6 @@
-from http.client import OK
-import os
-import re
-from urllib import response
 from django.shortcuts import render, redirect
 from accounts.serializers import UserSerializer
+from auths.views import *
 
 from dj_rest_auth.registration.views import SocialLoginView
 from allauth.socialaccount.providers.oauth2.client import OAuth2Client
@@ -25,7 +22,6 @@ from .serializers import *
 
 from allauth.socialaccount.models import SocialAccount
 
-from django.core.mail import EmailMessage
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -85,11 +81,17 @@ def google_callback(request):
         user_info = User.objects.get(social_id=sub)
         encoded_jwt = jwt.encode({'id':user_info.id}, settings.WEF_KEY, algorithm='HS256')
 
-        # 소셜 로그인은 했는데 회원가입 안한 사람
-        return JsonResponse({
-            'access_token':encoded_jwt,
-            'is_active':user_info.is_active
-        }, status=200)
+        # 소셜 로그인만 하고 회원가입은 안한 사람은 False로, 회원가입까지 한 사람은 True로 return
+        if user_info.is_active == False:
+            return JsonResponse({
+                'is_active':user_info.is_active
+            }, status=200)
+        else:
+            token = get_tokens_for_user(user_info)
+            return JsonResponse({
+                'token':token,
+                'is_active':user_info.is_active
+            })
     # 아예 회원가입 안한 사람
     else:
         # 이메일이 @likelion.org 아닌 경우 오류 처리
@@ -102,10 +104,7 @@ def google_callback(request):
         )
         new_user_info.save()
 
-        encoded_jwt = jwt.encode({'id':new_user_info.id}, settings.WEF_KEY, algorithm='HS256')
-
         return JsonResponse({
-            'access_token':encoded_jwt,
             'is_active':new_user_info.is_active
         })
 
@@ -214,10 +213,3 @@ class CauMailView(APIView):
         if request.data['code'] != code:
             return Response(False, safe=False)
         return Response(True, safe=False)
-
-# def generate_access_token(user_id):
-#     access_token_payload =  {
-#         "id": user_id,
-#         "exp": datetime.utcnow() + datetime.timedelta(days=7),
-#         "iat": 
-#     }
