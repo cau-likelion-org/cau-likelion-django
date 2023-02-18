@@ -30,7 +30,7 @@ import uuid
 import jwt
 import json
 
-BASE_URL = 'http://localhost:8000/'
+BASE_URL = 'https://api.cau-likelion.org/'
 GOOGLE_CALLBACK_URI = BASE_URL + 'api/accounts/google/callback/'
 
 # request -> code, access token
