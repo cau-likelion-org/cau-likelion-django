@@ -79,11 +79,12 @@ def google_callback(request):
     # 전달 받은 social_id로 user가 있는지 확인
     if User.objects.filter(social_id=sub).exists():
         user_info = User.objects.get(social_id=sub)
-        encoded_jwt = jwt.encode({'id':user_info.id}, settings.WEF_KEY, algorithm='HS256')
 
         # 소셜 로그인만 하고 회원가입은 안한 사람은 False로, 회원가입까지 한 사람은 True로 return
         if user_info.is_active == False:
+            token = get_tokens_for_user(user_info)
             return JsonResponse({
+                'token':token,
                 'is_active':user_info.is_active
             }, status=200)
         else:
@@ -103,16 +104,11 @@ def google_callback(request):
             email = email
         )
         new_user_info.save()
-
+        token = get_tokens_for_user(new_user_info)
         return JsonResponse({
+            'token':token,
             'is_active':new_user_info.is_active
         })
-
-# 구글 소셜 로그인 뷰
-class GoogleLogin(SocialLoginView):
-    adapter_class = google_view.GoogleOAuth2Adapter
-    callback_url = GOOGLE_CALLBACK_URI
-    client_class = OAuth2Client
 
 # 추가 정보 기입
 class ProfileView(APIView):
@@ -121,9 +117,7 @@ class ProfileView(APIView):
 # 초기 사용자 -> 회원 정보 넘어온 데이터로 update
     def put(self, request):
         token = request.META.get('HTTP_AUTHORIZATION')
-        # user = User.objects.get(access_token=token)
-        payload = jwt.decode(token, settings.WEF_KEY, algorithm='HS256')
-        user = User.objects.get(id=payload.get('id'))
+        user = get_user_from_access_token(token)
 
         update_serial = UserSerializer(user, data=request.data)
     
@@ -150,9 +144,7 @@ class ProfileView(APIView):
 # 기사용자 -> 회원 정보 return
     def get(self, request):
         token = request.META.get('HTTP_AUTHORIZATION')
-        # user = User.objects.get(access_token=token)
-        payload = jwt.decode(token, settings.WEF_KEY, algorithm='HS256')
-        user = User.objects.get(id=payload.get('id'))
+        user = get_user_from_access_token(token)
         
         if user.is_active == False:
             return Response(data={
@@ -177,14 +169,13 @@ def create_code():
 
 # 학교 메일 인증
 def cau_authentication(request):
-    text_title = '[중앙대 멋사] 학교 계정 확인 메일 🦁'
     global code
     code = create_code()
     html_content = render_to_string('accounts/mail_template.html', {
         "code":code
     })
     to_email = request.data['email']
-    subject = "제목"
+    subject = "[중앙대 멋사] 학교 계정 확인 메일 🦁"
     content = "내용"
     sender_email = settings.EMAIL_HOST_USER
     send_mail(subject, content, sender_email, [to_email], html_message=html_content)
@@ -196,9 +187,7 @@ class CauMailView(APIView):
     def get(self, request):
         code = cau_authentication(request)
         token = request.META.get('HTTP_AUTHORIZATION')
-        # user = User.objects.get(access_token = token)
-        payload = jwt.decode(token, settings.WEF_KEY, algorithm='HS256')
-        user = User.objects.get(id=payload.get('id'))
+        user = get_user_from_access_token(token)
         user.code = code
         user.save()
         return JsonResponse({
@@ -207,9 +196,8 @@ class CauMailView(APIView):
     
     def post(self, request):
         token = request.META.get('HTTP_AUTHORIZATION')
-        # code = User.objects.get(access_token = token).code
-        payload = jwt.decode(token, settings.WEF_KEY, algorithm='HS256')
-        user = User.objects.get(id=payload.get('id')).code
+        user = get_user_from_access_token(token)
+        code = user.code
         if request.data['code'] != code:
             return Response(False, safe=False)
         return Response(True, safe=False)
