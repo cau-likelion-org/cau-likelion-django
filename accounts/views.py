@@ -59,7 +59,6 @@ def google_callback(request):
 
     ### 1-3. 성공 시 access_token 가져오기
     access_token = token_req_json.get('access_token')
-
     #################################################################
     
     # 가져온 access_token으로 이메일값을 구글에 요청
