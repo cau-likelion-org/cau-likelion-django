@@ -42,6 +42,8 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
+CSRF_TRUSTED_ORIGINS = ['https://api.cau-likelion.org']
+
 
 # Application definition
 
