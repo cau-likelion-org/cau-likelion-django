@@ -47,7 +47,7 @@ def google_callback(request):
     state = 'state_parameter_passthrough_value'
     
     # 1. 받은 코드로 구글에 access token 요청
-    token_req = requests.post(f"https://oauth2.googleapis.com/token?client_id={client_id}&client_secret={client_secret}&code={code}&grant_type=authorization_code&redirect_uri={GOOGLE_CALLBACK_URI}&state={state}")
+    token_req = requests.post(f"https://oauth2.googleapis.com/token?client_id={client_id}&client_secret={client_secret}&code={code}&grant_type=authorization_code&redirect_uri=http://localhost:3000/google&state={state}")
     
     ### 1-1. json으로 변환 & 에러 부분 파싱
     token_req_json = token_req.json()
