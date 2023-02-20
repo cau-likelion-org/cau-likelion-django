@@ -15,6 +15,7 @@ from telnetlib import AUTHENTICATION
 from django.core.exceptions import ImproperlyConfigured
 from pathlib import Path
 import my_settings
+import datetime
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -220,3 +221,11 @@ ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 1
 CLIENT_SECRET = get_secret("CLIENT_SECRET")
 
 WEF_KEY = get_secret("WEF_KEY")
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': datetime.timedelta(hours=2),
+    'REFRESH_TOKEN_LIFETIME': datetime.timedelta(days=7),
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
+    'TOKEN_USER_CLASS': 'accounts.User', 
+}
