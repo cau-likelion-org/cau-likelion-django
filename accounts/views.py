@@ -167,13 +167,13 @@ def create_code():
     return result
 
 # 학교 메일 인증
-def cau_authentication(request):
+def cau_authentication(email):
     global code
     code = create_code()
     html_content = render_to_string('accounts/mail_template.html', {
         "code":code
     })
-    to_email = request.data['email']
+    to_email = email
     subject = "[중앙대 멋사] 학교 계정 확인 메일 🦁"
     content = "내용"
     sender_email = settings.EMAIL_HOST_USER
@@ -182,8 +182,9 @@ def cau_authentication(request):
     return code
 
 class CauMailView(APIView):
-    def post(self, request):
-        code = cau_authentication(request)
+    def get(self, request):
+        email = request.GET.get('email')
+        code = cau_authentication(email)
         token = request.META.get('HTTP_AUTHORIZATION')
         user = get_user_from_access_token(token)
         user.code = code
@@ -192,7 +193,7 @@ class CauMailView(APIView):
             'code' : code,
         }, safe=False, status = 200)
     
-    def put(self, request):
+    def post(self, request):
         token = request.META.get('HTTP_AUTHORIZATION')
         user = get_user_from_access_token(token)
         code = user.code
