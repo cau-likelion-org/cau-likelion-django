@@ -182,8 +182,7 @@ def cau_authentication(request):
     return code
 
 class CauMailView(APIView):
-    
-    def get(self, request):
+    def post(self, request):
         code = cau_authentication(request)
         token = request.META.get('HTTP_AUTHORIZATION')
         user = get_user_from_access_token(token)
@@ -193,10 +192,10 @@ class CauMailView(APIView):
             'code' : code,
         }, safe=False, status = 200)
     
-    def post(self, request):
+    def put(self, request):
         token = request.META.get('HTTP_AUTHORIZATION')
         user = get_user_from_access_token(token)
         code = user.code
         if request.data['code'] != code:
-            return Response(False, safe=False)
-        return Response(True, safe=False)
+            return Response(False)
+        return Response(True)
