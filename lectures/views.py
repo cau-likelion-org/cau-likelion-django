@@ -7,7 +7,6 @@ from django.utils.decorators import method_decorator
 from rest_framework import viewsets
 from django.http import Http404
 
-@method_decorator(csrf_exempt, name="dispatch")
 class SessionViewSet(viewsets.ModelViewSet):
     queryset = Session.objects.all()
     serializer_class = SessionSerializer

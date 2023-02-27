@@ -11,7 +11,6 @@ from django.utils.decorators import method_decorator
 from rest_framework import status, viewsets
 # from django.http import Http404
 
-@method_decorator(csrf_exempt, name="dispatch")
 class GalleryViewSet(viewsets.ModelViewSet):
     queryset = Gallery.objects.all()
     serializer_class = GallerySerializer
