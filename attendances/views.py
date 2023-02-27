@@ -10,10 +10,12 @@ from .serializers import AttendanceSerializer, UserAttendanceSerializer
 from accounts.models import User
 from .models import *
 from datetime import datetime
+from auths.views import *
 
 # 0 : default, 1 : 출석 , 2 : 지각, 3 : 무단 결석
 # 지각: tardiness, 결석: absence, 무단결석: truancy
 
+# 운영진 only - get, post
 class AttendanceAdminView(APIView):
     permission_classes = [IsManagementTeam]
     
@@ -75,11 +77,13 @@ class AttendanceAdminView(APIView):
         }, status=status.HTTP_200_OK)
             
             
-
+# get, post
 class AttendanceView(APIView):
     # 개별 출석 처리 + 지각 처리
     def post(self, request):
         token = request.META.get('HTTP_AUTHORIZATION')
+        user = get_user_from_access_token(token)
+        
         today = datetime.now().date()
         now = datetime.now()
 
@@ -89,8 +93,6 @@ class AttendanceView(APIView):
         if attendance.password != request.data['password']:
             return JsonResponse('비밀번호가 틀렸습니다.', status=400)
 
-        
-        user = User.objects.get(access_token=token)
         user_attendance = UserAttendance.objects.get(attendance=attendance, user=user)
         
         time = now - datetime.strptime(now.strftime("%Y%m%d"), "%Y%m%d")
@@ -117,7 +119,7 @@ class AttendanceView(APIView):
     # input : date
     # output : name, attendance_result
     def get(self, request):
-        date = request.get('date')
+        date = request.data['date']
         
         attendance = Attendance.objects.get(date=date) # 오늘 출석부
         user_attendances = UserAttendance.objects.filter(attendance=attendance)
@@ -162,16 +164,16 @@ class AttendanceView(APIView):
             }
         }, status=status.HTTP_200_OK)
             
-
+# post
+# 인정 결석 -> 운영진이 수정
 class AttendanceModifyView(APIView):
     permission_classes = [IsManagementTeam]
 
-    # 인정 결석 -> 운영진이 수정
     # input : user id (pk), 출석부 날짜, 출석부 key value
     def post(self, request):
-        user_id = request.get('user_id')
-        date = request.get('date')
-        attendance_result = request.get('attendance_result')
+        user_id = request.data['user_id']
+        date = request.data['date']
+        attendance_result = request.data['attendance_result']
         
         user = User.objects.get(pk=user_id)
         attendance = Attendance.objects.get(date=date)
@@ -191,6 +193,94 @@ class AttendanceModifyView(APIView):
             'message' : 'success',
             'data' : updated_attendance_json
         }, status=status.HTTP_200_OK)
+  
+# get      
+# 누적 출석 현황
+class MypageView(APIView):
+    def get(self, request):
+        token = request.META.get('HTTP_AUTHORIZATION')
+        user = get_user_from_access_token(token)
+        
+        # 운영진 -> 아기사자 전체 누적 출석
+        if user.is_admin == True:
+            members = User.objects.filter(generation=11, is_admin=False)
+        
+            total_attendances = []
+            
+            for member in members:
+                user_attendances = UserAttendance.objects.filter(user=member)
+                
+                attendance = 0 # 출석
+                tardiness = 0 # 지각
+                absence = 0 # 결석
+                truancy = 0 # 무단결석
+                
+                for user_attendance in user_attendances:
+                    if user_attendance.attendance_result == 0:
+                        absence += 1
+                    if user_attendance.attendance_result == 1:
+                        attendance += 1
+                    if user_attendance.attendance_result == 2:
+                        tardiness += 1
+                    if user_attendance.attendance_result == 3:
+                        truancy += 1
+                
+                attendance_json = {
+                    "name" : user_attendance.user.name,
+                    "track" : user_attendance.user.track,
+                    "attendnace" : attendance,
+                    "tardiness" : tardiness,
+                    "absence" : absence,
+                    "truancy" : truancy
+                }
+                
+                total_attendances.append(attendance_json)
+            
+            return Response(data={
+                'message' : 'success',
+                'data' : total_attendances
+            }, status=status.HTTP_200_OK)
+        
+        # 아기사자 -> 본인 누적 출석 현황 조회
+        else:
+            user_attendances = UserAttendance.objects.filter(user=user)
+            
+            attendance = 0 # 출석
+            tardiness = 0 # 지각
+            absence = 0 # 결석
+            truancy = 0 # 무단결석
+            
+            for user_attendance in user_attendances:
+                if user_attendance.attendance_result == 0:
+                    attendance += 1
+                if user_attendance.attendance_result == 1:
+                    tardiness += 1
+                if user_attendance.attendance_result == 2:
+                    absence += 1
+                if user_attendance.attendance_result == 3:
+                    truancy += 1
+            
+            user_attendance_json = {
+                "name" : user.name,
+                "attendance" : attendance,
+                "tardiness" : tardiness,
+                "absence" : absence,
+                "truancy" : truancy
+            }
+                    
+            return Response(data={
+                'message' : 'success',
+                'data' : user_attendance_json
+            }, status=status.HTTP_200_OK)
+        
+        
+        
+        
+        
+        
+                        
+            
+
         
 
         
