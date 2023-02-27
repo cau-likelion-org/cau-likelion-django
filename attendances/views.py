@@ -11,9 +11,13 @@ from accounts.models import User
 from .models import *
 from datetime import datetime
 
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
+
 # 0 : default, 1 : 출석 , 2 : 지각, 3 : 무단 결석
 # 지각: tardiness, 결석: absence, 무단결석: truancy
 
+@method_decorator(csrf_exempt, name="dispatch")
 class AttendanceAdminView(APIView):
     permission_classes = [IsManagementTeam]
     
@@ -75,7 +79,7 @@ class AttendanceAdminView(APIView):
         }, status=status.HTTP_200_OK)
             
             
-
+@method_decorator(csrf_exempt, name="dispatch")
 class AttendanceView(APIView):
     # 개별 출석 처리 + 지각 처리
     def post(self, request):
@@ -162,7 +166,7 @@ class AttendanceView(APIView):
             }
         }, status=status.HTTP_200_OK)
             
-
+@method_decorator(csrf_exempt, name="dispatch")
 class AttendanceModifyView(APIView):
     permission_classes = [IsManagementTeam]
 
