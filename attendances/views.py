@@ -12,10 +12,15 @@ from .models import *
 from datetime import datetime
 from auths.views import *
 
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
+
 # 0 : default, 1 : 출석 , 2 : 지각, 3 : 무단 결석
 # 지각: tardiness, 결석: absence, 무단결석: truancy
 
+
 # 운영진 only - get, post
+
 class AttendanceAdminView(APIView):
     permission_classes = [IsManagementTeam]
     
@@ -77,6 +82,7 @@ class AttendanceAdminView(APIView):
         }, status=status.HTTP_200_OK)
             
             
+
 # get, post
 class AttendanceView(APIView):
     # 개별 출석 처리 + 지각 처리
@@ -164,6 +170,7 @@ class AttendanceView(APIView):
             }
         }, status=status.HTTP_200_OK)
             
+
 # post
 # 인정 결석 -> 운영진이 수정
 class AttendanceModifyView(APIView):

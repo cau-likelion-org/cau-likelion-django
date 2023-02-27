@@ -43,7 +43,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
-CSRF_TRUSTED_ORIGINS = ['https://api.cau-likelion.org']
+CSRF_TRUSTED_ORIGINS = ['https://api.cau-likelion.org', 'http://localhost:3000']
 
 
 # Application definition
