@@ -1,6 +1,7 @@
 # 데이터 처리
 from .models import Gallery,GalleryImage
 from .serializers import GallerySerializer, GalleryImageSerializer
+from django.views.decorators.csrf import csrf_exempt
 
 # APIView를 사용하기 위해 import
 # from rest_framework.views import APIView
@@ -9,6 +10,7 @@ from .serializers import GallerySerializer, GalleryImageSerializer
 from rest_framework import status, viewsets
 # from django.http import Http404
 
+@csrf_exempt
 class GalleryViewSet(viewsets.ModelViewSet):
     queryset = Gallery.objects.all()
     serializer_class = GallerySerializer

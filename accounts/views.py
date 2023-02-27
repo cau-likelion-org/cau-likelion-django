@@ -9,6 +9,7 @@ from rest_framework_simplejwt.serializers import RefreshToken
 from django.template.loader import render_to_string
 from django.core.mail import send_mail
 from django.conf import settings
+from django.views.decorators.csrf import csrf_exempt
 
 from json import JSONDecodeError
 from django.http import HttpResponse, JsonResponse
@@ -110,6 +111,7 @@ def google_callback(request):
         })
 
 # 추가 정보 기입
+@csrf_exempt
 class ProfileView(APIView):
     serializer_class = UserSerializer
     
@@ -181,6 +183,7 @@ def cau_authentication(email):
     
     return code
 
+@csrf_exempt
 class CauMailView(APIView):
     def get(self, request):
         email = request.GET.get('email')
