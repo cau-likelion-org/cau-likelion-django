@@ -43,8 +43,9 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
-CSRF_TRUSTED_ORIGINS = ['https://api.cau-likelion.org', 'http://localhost:3000']
-
+CSRF_TRUSTED_ORIGINS = ['https://api.cau-likelion.org', 'https://cau-likelion.org', 'http://localhost:3000']
+CORS_ORIGIN_WHITELIST = ['https://api.cau-likelion.org', 'https://cau-likelion.org', 'http://localhost:3000']
+CORS_ALLOW_CREDENTIALS = True
 
 # Application definition
 
@@ -83,12 +84,14 @@ THIRD_PARTY_APPS = [
     #'django-storages',
     #'pillow',
     'storages',
+    'corsheaders',
     
 ]
 
 INSTALLED_APPS = DJANGO_APPS + PROJECT_APPS + THIRD_PARTY_APPS
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
