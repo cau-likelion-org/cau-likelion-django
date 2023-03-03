@@ -1,35 +1,24 @@
-from django.shortcuts import render, redirect
-from accounts.serializers import UserSerializer
-from auths.views import *
-
-from dj_rest_auth.registration.views import SocialLoginView
-from allauth.socialaccount.providers.oauth2.client import OAuth2Client
-from allauth.socialaccount.providers.google import views as google_view
-from rest_framework_simplejwt.serializers import RefreshToken
 from django.template.loader import render_to_string
 from django.core.mail import send_mail
 from django.conf import settings
-from django.views.decorators.csrf import csrf_exempt
-from django.utils.decorators import method_decorator
+
 
 from json import JSONDecodeError
-from django.http import HttpResponse, JsonResponse
+from django.http import JsonResponse
 
 import requests
-from datetime import datetime
-from rest_framework import status
 
 from .models import *
 from .serializers import *
-
-from allauth.socialaccount.models import SocialAccount
+from mypages.models import *
+from auths.views import *
 
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework import status
 
 import uuid
-import jwt
 import json
 
 BASE_URL = 'https://api.cau-likelion.org/'
@@ -111,57 +100,6 @@ def google_callback(request):
             'is_active':new_user_info.is_active
         })
 
-# 추가 정보 기입
-
-class ProfileView(APIView):
-    serializer_class = UserSerializer
-# 초기 사용자 -> 회원 정보 넘어온 데이터로 update
-    def put(self, request):
-        token = request.META.get('HTTP_AUTHORIZATION')
-        user = get_user_from_access_token(token)
-
-        update_serial = UserSerializer(user, data=request.data)
-    
-        if update_serial.is_valid():
-            update_serial.save()
-            
-            # 아이디 활성화
-            user.is_active = True
-            user.save()
-            
-            serializer = UserSerializer(user)
-    
-            return Response(data={
-                "message" : 'success',
-                "data" : {
-                    "user" : serializer.data
-                }
-            }, status=status.HTTP_200_OK)
-        else:
-            return Response(data={
-                "message" : 'update_serial is not valid'
-            }, status=status.HTTP_400_BAD_REQUEST)
-            
-# 기사용자 -> 회원 정보 return
-    def get(self, request):
-        token = request.META.get('HTTP_AUTHORIZATION')
-        user = get_user_from_access_token(token)
-        
-        if user.is_active == False:
-            return Response(data={
-                "message" : 'user is not activated yet'
-            }, status=status.HTTP_400_BAD_REQUEST)
-        
-        serializer = UserSerializer(user)
-        
-        return Response(data={
-                "message" : 'success',
-                "data" : {
-                    "user" : serializer.data
-                }
-            }, status=status.HTTP_200_OK)
-        
-
 
 # 인증코드 uuid 생성 (uuid1 : HostID, 현재 시간)
 def create_code():
@@ -202,3 +140,44 @@ class CauMailView(APIView):
         if request.data['code'] != code:
             return Response(False)
         return Response(True)
+    
+
+# 회원가입
+class SignUpView(APIView):
+    def put(self, request):
+        token = request.META.get('HTTP_AUTHORIZATION')
+        user = get_user_from_access_token(token)
+        
+        if user.is_active == False:
+            update_serial = UserSerializer(user, data=request.data)
+        
+            if update_serial.is_valid():
+                update_serial.save()
+                
+                # 아이디 활성화
+                user.is_active = True
+                user.save()
+                
+                if user.is_admin == False and user.generation == 11:
+                    # mypage 모델 생성
+                    new_cumulative_attendance = CumulativeAttendance.objects.create(
+                        user = user,
+                    )
+                    new_cumulative_attendance.save()
+                
+                serializer = UserSerializer(user)
+        
+                return Response(data={
+                    "message" : 'success',
+                    "data" : {
+                        "user" : serializer.data
+                    }
+                }, status=status.HTTP_200_OK)
+            else:
+                return Response(data={
+                    "message" : 'update_serial is not valid'
+                }, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response(data={
+                "message" : "Member who already exists."
+            }, status=status.HTTP_400_BAD_REQUEST)

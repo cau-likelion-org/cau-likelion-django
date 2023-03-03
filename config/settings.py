@@ -68,6 +68,8 @@ PROJECT_APPS = [
     'galleries',
     'attendances',
     'auths',
+    'mypages',
+    'profiles',
 ]
 
 THIRD_PARTY_APPS = [
