@@ -1,4 +1,5 @@
 from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
 
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -7,7 +8,7 @@ from rest_framework import status
 from datetime import datetime
 
 from config.permissions import IsManagementTeam
-from .serializers import AttendanceSerializer
+from .serializers import *
 from accounts.models import User
 from .models import *
 from mypages.models import *
@@ -52,7 +53,43 @@ class AttendanceAdminView(APIView):
             "data" : attendance.data
         }, status=status.HTTP_200_OK)
     
+
+# access token 들어왔을 때 user attendance 
+class UserAttendanceView(APIView):
+    def get(self, request):
+        token = request.META.get('HTTP_AUTHORIZATION')
+        user = get_user_from_access_token(token)
+        date = request.data['date']
+        
+        try:
+            attendance = Attendance.objects.get(date=date)
             
+            if user.is_admin == True:
+                return Response(data={
+                    "message" : "운영진 입니다."
+                }, status=status.HTTP_202_ACCEPTED)
+            else:
+                if user.generation == 11:
+                    user_attendance = UserAttendance.objects.get(user=user, attendance=attendance)
+                    user_attendance_json = {
+                        "name" : user.name,
+                        "date" : date,
+                        "attendance_result" : user_attendance.attendance_result
+                    }
+                    
+                    return Response(data={
+                        "message" : "success",
+                        "data" : user_attendance_json
+                    }, status=status.HTTP_200_OK)
+                else:
+                    return Response(data={
+                        "message" : "현재 활동중인 멤버가 아닙니다."
+                    }, status=status.HTTP_401_UNAUTHORIZED)
+        except:
+            return Response(data={
+                "message" : "출석부가 생성되지 않았습니다." # 세션 날 아닌 경우
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
 
 # / : post - 개인별 출석, get - 오늘의 출석부
 class AttendanceView(APIView):
