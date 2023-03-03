@@ -1,26 +1,24 @@
 from django.http import JsonResponse
+
 from rest_framework.response import Response
-from django.shortcuts import render
 from rest_framework.views import APIView
-from rest_framework.viewsets import ModelViewSet
 from rest_framework import status
 
+from datetime import datetime
+
 from config.permissions import IsManagementTeam
-from .serializers import AttendanceSerializer, UserAttendanceSerializer
+from .serializers import AttendanceSerializer
 from accounts.models import User
 from .models import *
-from datetime import datetime
+from mypages.models import *
 from auths.views import *
 
-from django.views.decorators.csrf import csrf_exempt
-from django.utils.decorators import method_decorator
 
 # 0 : default, 1 : 출석 , 2 : 지각, 3 : 무단 결석
 # 지각: tardiness, 결석: absence, 무단결석: truancy
 
 
-# 운영진 only - get, post
-
+# /secret : 오늘의 출석부 생성
 class AttendanceAdminView(APIView):
     permission_classes = [IsManagementTeam]
     
@@ -43,47 +41,20 @@ class AttendanceAdminView(APIView):
                 attendance = attendance
             )
             new_user_attendance.save()
+            
+            user_cumulative_attendance = user.cumulativeattendance
+            user_cumulative_attendance.absence += 1
+            user_cumulative_attendance.save()
+            
         
         return Response(data={
             "message" : "success",
             "data" : attendance.data
         }, status=status.HTTP_200_OK)
     
-    # 전체 출석부 조회 - 날짜별로 나눠서 return
-    def get(self, request):
-        attendances = Attendance.objects.all()
-        
-        attendances_list = []
-        
-        # 날짜 별 출석 현황 전체 반환 
-        for attendance in attendances:
-            user_attendances = UserAttendance.objects.filter(attendance=attendance)
-            
-            user_attendances_list = []
-            
-            for user_attendance in user_attendances:
-                user_attendance_json = {
-                    "name" : user_attendance.user.name,
-                    "track" : user_attendance.user.track,
-                    "attendance_result" : user_attendance.attendance_result
-                }
-                user_attendances_list.append(user_attendance_json)
-            
-            attendance_json = {
-                "date" : attendance.date,
-                "data" : user_attendances_list
-            }
-            
-            attendances_list.append(attendance_json)
-        
-        return Response(data={
-            "message" : "success",
-            "data" : attendances_list
-        }, status=status.HTTP_200_OK)
-            
             
 
-# get, post
+# / : post - 개인별 출석, get - 오늘의 출석부
 class AttendanceView(APIView):
     # 개별 출석 처리 + 지각 처리
     def post(self, request):
@@ -100,6 +71,7 @@ class AttendanceView(APIView):
             return JsonResponse('비밀번호가 틀렸습니다.', status=400)
 
         user_attendance = UserAttendance.objects.get(attendance=attendance, user=user)
+        user_cumulative_attendance = user.cumulativeattendance
         
         time = now - datetime.strptime(now.strftime("%Y%m%d"), "%Y%m%d")
         
@@ -107,10 +79,18 @@ class AttendanceView(APIView):
             user_attendance.time = time
             user_attendance.attendance_result = 1
             user_attendance.save()
+            
+            user_cumulative_attendance.absence -= 1
+            user_cumulative_attendance.attendance += 1
+            user_cumulative_attendance.save()
         else:
             user_attendance.time = time
             user_attendance.attendance_result = 2
             user_attendance.save()
+            
+            user_cumulative_attendance.absence -= 1
+            user_cumulative_attendance.tardiness += 1
+            user_cumulative_attendance.save()
         
         return Response(data={
             'message' : 'success',
@@ -122,8 +102,6 @@ class AttendanceView(APIView):
         }, status=status.HTTP_200_OK)
     
     # 오늘의 출석부
-    # input : date
-    # output : name, attendance_result
     def get(self, request):
         date = request.data['date']
         
@@ -139,26 +117,21 @@ class AttendanceView(APIView):
             # 출석 or 지각
             if user_attendance.attendance_result == 1 or user_attendance.attendance_result == 2:
                 
-                user_attendance_json = {
-                        "name" : user_attendance.user.name,
-                        "attendance_result" : user_attendance.attendance_result
-                }
-                
                 # 기획
                 if user_attendance.user.track == 0:
-                    PM.append(user_attendance_json)
+                    PM.append(user_attendance.user.name)
                 
                 # 디자인
                 if user_attendance.user.track == 1:
-                    DGN.append(user_attendance_json)
+                    DGN.append(user_attendance.user.name)
                 
                 # 프론트
                 if user_attendance.user.track == 2:
-                    FE.append(user_attendance_json)
+                    FE.append(user_attendance.user.name)
                     
                 # 백엔드
                 if user_attendance.user.track == 3:
-                    BE.append(user_attendance_json)
+                    BE.append(user_attendance.user.name)
         
         return Response(data={
             "message" : "success",
@@ -171,114 +144,6 @@ class AttendanceView(APIView):
         }, status=status.HTTP_200_OK)
             
 
-# post
-# 인정 결석 -> 운영진이 수정
-class AttendanceModifyView(APIView):
-    permission_classes = [IsManagementTeam]
-
-    # input : user id (pk), 출석부 날짜, 출석부 key value
-    def post(self, request):
-        user_id = request.data['user_id']
-        date = request.data['date']
-        attendance_result = request.data['attendance_result']
-        
-        user = User.objects.get(pk=user_id)
-        attendance = Attendance.objects.get(date=date)
-        
-        user_attendance = UserAttendance.objects.get(user=user, attendance=attendance)
-        
-        user_attendance.attendance_result = attendance_result
-        user_attendance.save()
-        
-        updated_attendance_json = {
-            "name" : user_attendance.user.name,
-            "date" : user_attendance.attendance.date,
-            "attendance_result" : attendance_result
-        }
-        
-        return Response(data={
-            'message' : 'success',
-            'data' : updated_attendance_json
-        }, status=status.HTTP_200_OK)
-  
-# get      
-# 누적 출석 현황
-class MypageView(APIView):
-    def get(self, request):
-        token = request.META.get('HTTP_AUTHORIZATION')
-        user = get_user_from_access_token(token)
-        
-        # 운영진 -> 아기사자 전체 누적 출석
-        if user.is_admin == True:
-            members = User.objects.filter(generation=11, is_admin=False)
-        
-            total_attendances = []
-            
-            for member in members:
-                user_attendances = UserAttendance.objects.filter(user=member)
-                
-                attendance = 0 # 출석
-                tardiness = 0 # 지각
-                absence = 0 # 결석
-                truancy = 0 # 무단결석
-                
-                for user_attendance in user_attendances:
-                    if user_attendance.attendance_result == 0:
-                        absence += 1
-                    if user_attendance.attendance_result == 1:
-                        attendance += 1
-                    if user_attendance.attendance_result == 2:
-                        tardiness += 1
-                    if user_attendance.attendance_result == 3:
-                        truancy += 1
-                
-                attendance_json = {
-                    "name" : user_attendance.user.name,
-                    "track" : user_attendance.user.track,
-                    "attendnace" : attendance,
-                    "tardiness" : tardiness,
-                    "absence" : absence,
-                    "truancy" : truancy
-                }
-                
-                total_attendances.append(attendance_json)
-            
-            return Response(data={
-                'message' : 'success',
-                'data' : total_attendances
-            }, status=status.HTTP_200_OK)
-        
-        # 아기사자 -> 본인 누적 출석 현황 조회
-        else:
-            user_attendances = UserAttendance.objects.filter(user=user)
-            
-            attendance = 0 # 출석
-            tardiness = 0 # 지각
-            absence = 0 # 결석
-            truancy = 0 # 무단결석
-            
-            for user_attendance in user_attendances:
-                if user_attendance.attendance_result == 0:
-                    attendance += 1
-                if user_attendance.attendance_result == 1:
-                    tardiness += 1
-                if user_attendance.attendance_result == 2:
-                    absence += 1
-                if user_attendance.attendance_result == 3:
-                    truancy += 1
-            
-            user_attendance_json = {
-                "name" : user.name,
-                "attendance" : attendance,
-                "tardiness" : tardiness,
-                "absence" : absence,
-                "truancy" : truancy
-            }
-                    
-            return Response(data={
-                'message' : 'success',
-                'data' : user_attendance_json
-            }, status=status.HTTP_200_OK)
         
         
         
