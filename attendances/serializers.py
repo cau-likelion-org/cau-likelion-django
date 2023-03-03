@@ -12,4 +12,7 @@ class AttendanceSerializer(ModelSerializer):
 class UserAttendanceSerializer(ModelSerializer):
     class Meta:
         model = UserAttendance
-        fields = '__all__'
+        fields = [
+            'time',
+            'attendance_result'
+        ]

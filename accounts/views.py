@@ -165,12 +165,18 @@ class SignUpView(APIView):
                     )
                     new_cumulative_attendance.save()
                 
-                serializer = UserSerializer(user)
+                user_json= {
+                    "pk" : user.pk,
+                    "name" : user.name,
+                    "generation" : user.generation,
+                    "track" : user.track,
+                    "is_admin" : user.is_admin
+                }
         
                 return Response(data={
                     "message" : 'success',
                     "data" : {
-                        "user" : serializer.data
+                        "user" : user_json
                     }
                 }, status=status.HTTP_200_OK)
             else:
