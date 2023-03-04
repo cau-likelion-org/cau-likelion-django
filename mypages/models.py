@@ -6,7 +6,6 @@ from accounts.models import User
 
 class CumulativeAttendance(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='user')
-    attendance = models.IntegerField(default=0, null=True, blank=True)
     tardiness = models.IntegerField(default=0, null=True, blank=True)
     absence = models.IntegerField(default=0, null=True, blank=True)
     truancy = models.IntegerField(default=0, null=True, blank=True)
