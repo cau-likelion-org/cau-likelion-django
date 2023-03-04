@@ -57,7 +57,7 @@ class AttendanceAdminView(APIView):
 # '' : 개인 출석 체크, 개인 출석
 class AttendanceView(APIView):
     # 출석 여부 체크
-    def get(self, request, id):
+    def get(self, request):
         token = request.META.get('HTTP_AUTHORIZATION')
         user = get_user_from_access_token(token)
         date = request.GET['date']
