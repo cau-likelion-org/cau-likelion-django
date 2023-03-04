@@ -6,7 +6,7 @@ class Session(models.Model):
     CHOICES = (
         ('front', 'front'),
         ('back', 'back'),
-        ('desing', 'design'),
+        ('design', 'design'),
         ('pm', 'pm')
     )
     # 1. 게시글의 id 값
