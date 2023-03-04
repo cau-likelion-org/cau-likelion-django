@@ -6,4 +6,9 @@ from .models import CumulativeAttendance
 class CumulativeAttendanceSerializer(ModelSerializer):
     class Meta:
         model = CumulativeAttendance
-        fields = '__all__'
+        fields = [
+            'attendance',
+            'tardiness',
+            'absence',
+            'truancy'
+        ]
