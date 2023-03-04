@@ -57,10 +57,10 @@ class AttendanceAdminView(APIView):
 # '' : 개인 출석 체크, 개인 출석
 class AttendanceView(APIView):
     # 출석 여부 체크
-    def get(self, request):
+    def get(self, request, id):
         token = request.META.get('HTTP_AUTHORIZATION')
         user = get_user_from_access_token(token)
-        date = request.data['date']
+        date = request.GET['date']
         
         try:
             attendance = Attendance.objects.get(date=date)
@@ -117,7 +117,6 @@ class AttendanceView(APIView):
             user_attendance.save()
             
             user_cumulative_attendance.absence -= 1
-            user_cumulative_attendance.attendance += 1
             user_cumulative_attendance.save()
         else:
             user_attendance.time = time

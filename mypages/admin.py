@@ -5,4 +5,4 @@ from .models import CumulativeAttendance
 
 @admin.register(CumulativeAttendance)
 class CumulativeAttendanceAdmin(admin.ModelAdmin):
-    list_display = ['id', 'user', 'attendance', 'tardiness', 'absence', 'truancy']
+    list_display = ['id', 'user', 'tardiness', 'absence', 'truancy']

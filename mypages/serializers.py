@@ -7,7 +7,6 @@ class CumulativeAttendanceSerializer(ModelSerializer):
     class Meta:
         model = CumulativeAttendance
         fields = [
-            'attendance',
             'tardiness',
             'absence',
             'truancy'

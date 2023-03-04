@@ -28,7 +28,6 @@ class MypageAttendanceView(APIView):
                 cumulative_attendance_json = {
                     "name" : cumulative_attendance.user.name,
                     "track" : cumulative_attendance.user.track,
-                    "attendnace" : cumulative_attendance.attendance,
                     "tardiness" : cumulative_attendance.tardiness,
                     "absence" : cumulative_attendance.absence,
                     "truancy" : cumulative_attendance.truancy
@@ -46,7 +45,6 @@ class MypageAttendanceView(APIView):
             user_cumulative_attendance = user.cumulativeattendance
             user_cumulative_attendance_json = {
                 "name" : user.name,
-                "attendance" : user_cumulative_attendance.attendance,
                 "tardiness" : user_cumulative_attendance.tardiness,
                 "absence" : user_cumulative_attendance.absence,
                 "truancy" : user_cumulative_attendance.truancy
@@ -63,7 +61,6 @@ class MypageAttendanceView(APIView):
         user = get_user_from_access_token(token)
         
         member_id = request.data['user_id']
-        attendance = request.data['attendance']
         tardiness = request.data['tardiness']
         absence = request.data['absence']
         truancy = request.data['truancy']
@@ -78,7 +75,6 @@ class MypageAttendanceView(APIView):
         
         if user.is_admin == True:
             cumulative_attendance = member.cumulativeattendance
-            cumulative_attendance.attendance = attendance
             cumulative_attendance.tardiness = tardiness
             cumulative_attendance.absence = absence
             cumulative_attendance.truancy = truancy
@@ -86,7 +82,6 @@ class MypageAttendanceView(APIView):
             
             cumulative_attendance_json = {
                 "user_id" : cumulative_attendance.user.pk,
-                "attendance" : cumulative_attendance.attendance,
                 "tardiness" : cumulative_attendance.tardiness,
                 "absence" : cumulative_attendance.absence,
                 "truancy" : cumulative_attendance.truancy
