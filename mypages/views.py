@@ -68,7 +68,13 @@ class MypageAttendanceView(APIView):
         absence = request.data['absence']
         truancy = request.data['truancy']
         
-        member = User.objects.get(pk=member_id)
+        try:
+            member = User.objects.get(pk=member_id)
+        except:
+            return Response(data={
+                "message" : "가입되지 않은 회원입니다."
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
         
         if user.is_admin == True:
             cumulative_attendance = member.cumulativeattendance
@@ -93,7 +99,7 @@ class MypageAttendanceView(APIView):
         else:
             return Response(data={
                 "message" : "You don't have permission."
-            }, status=status.HTTP_400_BAD_REQUEST)
+            }, status=status.HTTP_401_UNAUTHORIZED)
             
         
             
