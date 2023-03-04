@@ -22,7 +22,7 @@ import uuid
 import json
 
 BASE_URL = 'https://api.cau-likelion.org/'
-GOOGLE_CALLBACK_URI = BASE_URL + 'api/accounts/google/callback/'
+GOOGLE_CALLBACK_URI = BASE_URL + 'api/google/callback'
 
 # request -> code, access token
 
