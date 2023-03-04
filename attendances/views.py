@@ -44,7 +44,7 @@ class AttendanceAdminView(APIView):
             new_user_attendance.save()
             
             user_cumulative_attendance = user.cumulativeattendance
-            user_cumulative_attendance.absence += 1
+            user_cumulative_attendance.absence += 1 # 처음 출석부 생성되면 default 결석
             user_cumulative_attendance.save()
             
         
@@ -54,8 +54,9 @@ class AttendanceAdminView(APIView):
         }, status=status.HTTP_200_OK)
     
 
-# access token 들어왔을 때 user attendance 
-class UserAttendanceView(APIView):
+# '' : 개인 출석 체크, 개인 출석
+class AttendanceView(APIView):
+    # 출석 여부 체크
     def get(self, request):
         token = request.META.get('HTTP_AUTHORIZATION')
         user = get_user_from_access_token(token)
@@ -73,6 +74,7 @@ class UserAttendanceView(APIView):
                     user_attendance = UserAttendance.objects.get(user=user, attendance=attendance)
                     user_attendance_json = {
                         "name" : user.name,
+                        "track" : user.track,
                         "date" : date,
                         "attendance_result" : user_attendance.attendance_result
                     }
@@ -89,10 +91,7 @@ class UserAttendanceView(APIView):
             return Response(data={
                 "message" : "출석부가 생성되지 않았습니다." # 세션 날 아닌 경우
             }, status=status.HTTP_400_BAD_REQUEST)
-        
-
-# / : post - 개인별 출석, get - 오늘의 출석부
-class AttendanceView(APIView):
+    
     # 개별 출석 처리 + 지각 처리
     def post(self, request):
         token = request.META.get('HTTP_AUTHORIZATION')
@@ -137,6 +136,10 @@ class AttendanceView(APIView):
                 'attendance_result':user_attendance.attendance_result
             }
         }, status=status.HTTP_200_OK)
+    
+        
+# /list : get - 오늘의 출석부
+class AttendanceListView(APIView):
     
     # 오늘의 출석부
     def get(self, request):
