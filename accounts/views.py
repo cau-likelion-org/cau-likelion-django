@@ -1,7 +1,7 @@
 from django.template.loader import render_to_string
 from django.core.mail import send_mail
 from django.conf import settings
-
+from django.shortcuts import redirect
 
 from json import JSONDecodeError
 from django.http import JsonResponse
@@ -22,19 +22,25 @@ import uuid
 import json
 
 BASE_URL = 'https://api.cau-likelion.org/'
+LOCAL_URL = 'http://localhost:8000/'
 GOOGLE_CALLBACK_URI = BASE_URL + 'api/google/callback'
+TEST = LOCAL_URL + 'api/google/callback'
 
 # request -> code, access token
 
 # access 있을때 -> 소셜로그인 O, 회원가입 X / 로그인
 # access 없을 때 -> 진짜 처음 소셜로그인 ('')
 
+def google_login(request):
+    scope = "https://www.googleapis.com/auth/userinfo.email"
+    client_id = '312850794943-rogubu1don9b5fgn7tjf4jrf4ri98vcs.apps.googleusercontent.com'
+    return redirect(f"https://accounts.google.com/o/oauth2/v2/auth?client_id={client_id}&response_type=code&redirect_uri={GOOGLE_CALLBACK_URI}&scope={scope}")
+
 # access token & 이메일 인증 요청 -> 회원가입 / 로그인 + jwt 토큰 발급
 def google_callback(request):
     client_id = '312850794943-rogubu1don9b5fgn7tjf4jrf4ri98vcs.apps.googleusercontent.com'
     client_secret = settings.CLIENT_SECRET
-    body = json.loads(request.body.decode('utf-8'))
-    code = body['code']
+    code = request.GET.get('code')
     state = 'state_parameter_passthrough_value'
     
     # 1. 받은 코드로 구글에 access token 요청
