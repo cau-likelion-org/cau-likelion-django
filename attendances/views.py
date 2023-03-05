@@ -32,7 +32,7 @@ class AttendanceAdminView(APIView):
         
         attendances = Attendance.objects.all()
         for attendance in attendances:
-            if attendance.date == date:
+            if str(attendance.date) == date:
                 return Response(data={
                     "message" : "오늘의 출석부가 이미 생성되었습니다."
                 }, status=status.HTTP_400_BAD_REQUEST)
@@ -42,6 +42,11 @@ class AttendanceAdminView(APIView):
             password = password
         )
         attendance.save()
+        
+        attendance_json = {
+            "date" : attendance.date,
+            "password" : attendance.password
+        }
        
         # user별 출석부 create
         users = User.objects.filter(generation=11, is_admin=False)
@@ -60,7 +65,7 @@ class AttendanceAdminView(APIView):
         
         return Response(data={
             "message" : "success",
-            "data" : attendance.data
+            "data" : attendance_json
         }, status=status.HTTP_200_OK)
     
 
@@ -72,13 +77,16 @@ class AttendanceView(APIView):
         user = get_user_from_access_token(token)
         date = request.GET['date']
         
+        date_result = datetime.strptime(date, "%Y-%m-%d")
+        print(date_result)
+        
         try:
-            attendance = Attendance.objects.get(date=date)
+            attendance = Attendance.objects.get(date=date_result)
             
             if user.is_admin == True:
                 return Response(data={
                     "message" : "운영진 입니다."
-                }, status=status.HTTP_202_ACCEPTED)
+                }, status=status.HTTP_405_METHOD_NOT_ALLOWED)
             else:
                 if user.generation == 11:
                     user_attendance = UserAttendance.objects.get(user=user, attendance=attendance)
@@ -121,8 +129,6 @@ class AttendanceView(APIView):
         
         time = now - datetime.strptime(now.strftime("%Y%m%d"), "%Y%m%d")
         
-        print(time)
-        print(time.seconds)
         
         # 6분부터 지각
         if time.seconds < 68760:
