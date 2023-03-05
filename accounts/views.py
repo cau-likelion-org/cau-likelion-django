@@ -2,6 +2,9 @@ from django.template.loader import render_to_string
 from django.core.mail import send_mail
 from django.conf import settings
 from django.shortcuts import redirect
+from allauth.socialaccount.providers.google import views as google_view
+from dj_rest_auth.registration.views import SocialLoginView
+from allauth.socialaccount.providers.oauth2.client import OAuth2Client
 
 from json import JSONDecodeError
 from django.http import JsonResponse
@@ -33,19 +36,24 @@ TEST = LOCAL_URL + 'api/google/callback'
 
 def google_login(request):
     scope = "https://www.googleapis.com/auth/userinfo.email"
-    body =  json.loads(request.body.decode('utf-8'))
-    client_id = body['client_id']
-    return redirect(f"https://accounts.google.com/o/oauth2/v2/auth?client_id={client_id}&response_type=code&redirect_uri={GOOGLE_CALLBACK_URI}&scope={scope}")
+    # body =  json.loads(request.body.decode('utf-8'))
+    # client_id = body['client_id']
+    client_id = '312850794943-rogubu1don9b5fgn7tjf4jrf4ri98vcs.apps.googleusercontent.com'
+    return redirect(f"https://accounts.google.com/o/oauth2/v2/auth?client_id={client_id}&response_type=code&redirect_uri={TEST}&scope={scope}")
 
 # access token & 이메일 인증 요청 -> 회원가입 / 로그인 + jwt 토큰 발급
 def google_callback(request):
     client_id = '312850794943-rogubu1don9b5fgn7tjf4jrf4ri98vcs.apps.googleusercontent.com'
     client_secret = settings.CLIENT_SECRET
-    code = request.GET.get('code')
+    # code = request.GET.get('code')
+    body = json.loads(request.body.decode('utf-8'))
+    code = body['code']
     state = 'state_parameter_passthrough_value'
     
+    redirect_uri = get_redirect_url(request)
+    
     # 1. 받은 코드로 구글에 access token 요청
-    token_req = requests.post(f"https://oauth2.googleapis.com/token?client_id={client_id}&client_secret={client_secret}&code={code}&grant_type=authorization_code&redirect_uri={GOOGLE_CALLBACK_URI}&state={state}")
+    token_req = requests.post(f"https://oauth2.googleapis.com/token?client_id={client_id}&client_secret={client_secret}&code={code}&grant_type=authorization_code&redirect_uri={redirect_uri}&state={state}")
     
     ### 1-1. json으로 변환 & 에러 부분 파싱
     token_req_json = token_req.json()
@@ -107,6 +115,10 @@ def google_callback(request):
             'is_active':new_user_info.is_active
         })
 
+class GoogleLogin(SocialLoginView):
+    adapter_class = google_view.GoogleOAuth2Adapter
+    callback_url = TEST
+    client_class = OAuth2Client
 
 # 인증코드 uuid 생성 (uuid1 : HostID, 현재 시간)
 def create_code():
@@ -194,3 +206,13 @@ class SignUpView(APIView):
             return Response(data={
                 "message" : "Member who already exists."
             }, status=status.HTTP_400_BAD_REQUEST)
+
+def get_redirect_url(request):
+    host = request.META['HTTP_HOST']
+    scheme = request.scheme
+
+    if host == 'cau-likelion.org':
+        redirect_uri = f'{scheme}://cau-likelion.org/google/callback'
+    else:
+        redirect_uri = f'{scheme}://localhost:3000/google'
+    return redirect_uri
