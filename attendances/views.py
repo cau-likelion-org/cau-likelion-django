@@ -192,10 +192,10 @@ class AttendanceListView(APIView):
         return Response(data={
             "message" : "success",
             "data" : {
-                "0" : PM,
-                "1" : DGN,
-                "2" : FE,
-                "3" : BE
+                "pm" : PM,
+                "design" : DGN,
+                "frontend" : FE,
+                "backend" : BE
             }
         }, status=status.HTTP_200_OK)
             
