@@ -121,18 +121,20 @@ class AttendanceView(APIView):
         
         time = now - datetime.strptime(now.strftime("%Y%m%d"), "%Y%m%d")
         
-        if time.seconds < 68700:
-            user_attendance.time = time
+        print(time)
+        print(time.seconds)
+        
+        # 6분부터 지각
+        if time.seconds < 68760:
             user_attendance.attendance_result = 1
             user_attendance.save()
             
             user_cumulative_attendance.absence -= 1
             user_cumulative_attendance.save()
         else:
-            user_attendance.time = time
             user_attendance.attendance_result = 2
             user_attendance.save()
-            
+
             user_cumulative_attendance.absence -= 1
             user_cumulative_attendance.tardiness += 1
             user_cumulative_attendance.save()
