@@ -23,7 +23,7 @@ class Session(models.Model):
     # 6. 글 내용
     description = models.TextField(null=True, blank = True, verbose_name = "글 내용")
     # 7. 발표자
-    assigner = models.CharField(max_length=10, verbose_name='발표자')
+    presenter = models.CharField(max_length=10, verbose_name='발표자')
     # 8. 발표 주제
     topic = models.CharField(max_length=50, verbose_name='세션 주제')
     # 9. 몇차 세션
