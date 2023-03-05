@@ -11,7 +11,7 @@ class Project(models.Model):
     # 3. 글 제목
     title = models.CharField(max_length= 50)
     # 4 기술 스택
-    dev_stack = models.CharField(null=False, blank = False, max_length = 200, verbose_name='트랙')
+    dev_stack = models.CharField(null=False, blank = False, max_length = 200, verbose_name='기술 스택')
     # 5. 썸네일
     thumbnail = models.ImageField(verbose_name = "썸네일", max_length=200)
     # 6. 프로젝트 상세 설명

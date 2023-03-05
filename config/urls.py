@@ -23,9 +23,8 @@ urlpatterns = [
     path('api/token', include('auths.urls')),
     path('api/profile', include('profiles.urls')),
     path('api/gallery', include('galleries.urls')),
-    path('api/session',include('lectures.urls')),
-    path('api/project',include('projects.urls')),
+    path('api/session', include('lectures.urls')),
+    path('api/project', include('projects.urls')),
     path('api/attendance', include('attendances.urls')),
     path('api/mypage', include('mypages.urls')),
-   
 ]
