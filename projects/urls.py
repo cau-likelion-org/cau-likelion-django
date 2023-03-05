@@ -12,5 +12,9 @@ from rest_framework.routers import DefaultRouter
 # router.register('', ProjectViewSet)
 
 urlpatterns = [
-    path('', views.GalleryList.as_view()),
+    path('', views.ProjectList.as_view()),
+    path('/<int:pk>', views.ProjectDetail.as_view())
+
 ]
+
+urlpatterns = format_suffix_patterns(urlpatterns)
