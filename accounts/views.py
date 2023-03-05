@@ -33,7 +33,8 @@ TEST = LOCAL_URL + 'api/google/callback'
 
 def google_login(request):
     scope = "https://www.googleapis.com/auth/userinfo.email"
-    client_id = '312850794943-rogubu1don9b5fgn7tjf4jrf4ri98vcs.apps.googleusercontent.com'
+    body =  json.loads(request.body.decode('utf-8'))
+    client_id = body['client_id']
     return redirect(f"https://accounts.google.com/o/oauth2/v2/auth?client_id={client_id}&response_type=code&redirect_uri={GOOGLE_CALLBACK_URI}&scope={scope}")
 
 # access token & 이메일 인증 요청 -> 회원가입 / 로그인 + jwt 토큰 발급
