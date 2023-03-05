@@ -32,7 +32,6 @@ class AttendanceAdminView(APIView):
         if attendance.is_valid():
             attendance.save()
             
-        
         # user별 출석부 create
         users = User.objects.filter(generation=11, is_admin=False)
         

@@ -2,6 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
+from .models import *
 from auths.views import *
 from accounts.models import *
 from attendances.models import *
@@ -19,12 +20,12 @@ class MypageAttendanceView(APIView):
         # 운영진 -> 아기사자 전체 누적 출석
         if user.is_admin == True:
             members = User.objects.filter(generation=11, is_admin=False)
-        
+        # generation 현재 - 2012 
             total_attendances = []
             
             for member in members:
-                cumulative_attendance = member.cumulativeattendance
-                
+                cumulative_attendance = CumulativeAttendance.objects.get(user=member)
+               
                 cumulative_attendance_json = {
                     "name" : cumulative_attendance.user.name,
                     "track" : cumulative_attendance.user.track,
@@ -42,7 +43,7 @@ class MypageAttendanceView(APIView):
         
         # 아기사자 -> 본인 누적 출석 현황 조회
         else:
-            user_cumulative_attendance = user.cumulativeattendance
+            user_cumulative_attendance = CumulativeAttendance.objects.get(user=user)
             user_cumulative_attendance_json = {
                 "name" : user.name,
                 "tardiness" : user_cumulative_attendance.tardiness,
@@ -74,7 +75,7 @@ class MypageAttendanceView(APIView):
         
         
         if user.is_admin == True:
-            cumulative_attendance = member.cumulativeattendance
+            cumulative_attendance = CumulativeAttendance.objects.get(user=member)
             cumulative_attendance.tardiness = tardiness
             cumulative_attendance.absence = absence
             cumulative_attendance.truancy = truancy
