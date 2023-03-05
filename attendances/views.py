@@ -78,7 +78,6 @@ class AttendanceView(APIView):
         date = request.GET['date']
         
         date_result = datetime.strptime(date, "%Y-%m-%d")
-        print(date_result)
         
         try:
             attendance = Attendance.objects.get(date=date_result)
@@ -160,7 +159,7 @@ class AttendanceListView(APIView):
     
     # 오늘의 출석부
     def get(self, request):
-        date = request.data['date']
+        date = request.GET['date']
         
         attendance = Attendance.objects.get(date=date) # 오늘 출석부
         user_attendances = UserAttendance.objects.filter(attendance=attendance)
