@@ -26,12 +26,23 @@ class AttendanceAdminView(APIView):
     # 오늘의 패스워드 생성 + 오늘의 출석부 생성 (전체, 개인별)
     # password input
     def post(self, request):
-        attendance = AttendanceSerializer(data=request.data)
         
-        # 출석부 create
-        if attendance.is_valid():
-            attendance.save()
-            
+        date = request.data['date']
+        password = request.data['password']
+        
+        attendances = Attendance.objects.all()
+        for attendance in attendances:
+            if attendance.date == date:
+                return Response(data={
+                    "message" : "오늘의 출석부가 이미 생성되었습니다."
+                }, status=status.HTTP_400_BAD_REQUEST)
+                
+        attendance = Attendance.objects.create(
+            date = date,
+            password = password
+        )
+        attendance.save()
+       
         # user별 출석부 create
         users = User.objects.filter(generation=11, is_admin=False)
         
@@ -42,7 +53,7 @@ class AttendanceAdminView(APIView):
             )
             new_user_attendance.save()
             
-            user_cumulative_attendance = user.cumulativeattendance
+            user_cumulative_attendance = CumulativeAttendance.objects.get(user=user)
             user_cumulative_attendance.absence += 1 # 처음 출석부 생성되면 default 결석
             user_cumulative_attendance.save()
             
@@ -106,7 +117,7 @@ class AttendanceView(APIView):
             return JsonResponse('비밀번호가 틀렸습니다.', status=400)
 
         user_attendance = UserAttendance.objects.get(attendance=attendance, user=user)
-        user_cumulative_attendance = user.cumulativeattendance
+        user_cumulative_attendance = CumulativeAttendance.objects.get(user=user)
         
         time = now - datetime.strptime(now.strftime("%Y%m%d"), "%Y%m%d")
         
