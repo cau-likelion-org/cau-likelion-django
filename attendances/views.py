@@ -26,12 +26,28 @@ class AttendanceAdminView(APIView):
     # 오늘의 패스워드 생성 + 오늘의 출석부 생성 (전체, 개인별)
     # password input
     def post(self, request):
-        attendance = AttendanceSerializer(data=request.data)
         
-        # 출석부 create
-        if attendance.is_valid():
-            attendance.save()
-            
+        date = request.data['date']
+        password = request.data['password']
+        
+        attendances = Attendance.objects.all()
+        for attendance in attendances:
+            if str(attendance.date) == date:
+                return Response(data={
+                    "message" : "오늘의 출석부가 이미 생성되었습니다."
+                }, status=status.HTTP_400_BAD_REQUEST)
+                
+        attendance = Attendance.objects.create(
+            date = date,
+            password = password
+        )
+        attendance.save()
+        
+        attendance_json = {
+            "date" : attendance.date,
+            "password" : attendance.password
+        }
+       
         # user별 출석부 create
         users = User.objects.filter(generation=11, is_admin=False)
         
@@ -42,14 +58,14 @@ class AttendanceAdminView(APIView):
             )
             new_user_attendance.save()
             
-            user_cumulative_attendance = user.cumulativeattendance
+            user_cumulative_attendance = CumulativeAttendance.objects.get(user=user)
             user_cumulative_attendance.absence += 1 # 처음 출석부 생성되면 default 결석
             user_cumulative_attendance.save()
             
         
         return Response(data={
             "message" : "success",
-            "data" : attendance.data
+            "data" : attendance_json
         }, status=status.HTTP_200_OK)
     
 
@@ -61,13 +77,15 @@ class AttendanceView(APIView):
         user = get_user_from_access_token(token)
         date = request.GET['date']
         
+        date_result = datetime.strptime(date, "%Y-%m-%d")
+        
         try:
-            attendance = Attendance.objects.get(date=date)
+            attendance = Attendance.objects.get(date=date_result)
             
             if user.is_admin == True:
                 return Response(data={
                     "message" : "운영진 입니다."
-                }, status=status.HTTP_202_ACCEPTED)
+                }, status=status.HTTP_405_METHOD_NOT_ALLOWED)
             else:
                 if user.generation == 11:
                     user_attendance = UserAttendance.objects.get(user=user, attendance=attendance)
@@ -106,22 +124,22 @@ class AttendanceView(APIView):
             return JsonResponse('비밀번호가 틀렸습니다.', status=400)
 
         user_attendance = UserAttendance.objects.get(attendance=attendance, user=user)
-        user_cumulative_attendance = user.cumulativeattendance
+        user_cumulative_attendance = CumulativeAttendance.objects.get(user=user)
         
         time = now - datetime.strptime(now.strftime("%Y%m%d"), "%Y%m%d")
         
-        if time.seconds < 68700:
-            user_attendance.time = time
+        
+        # 6분부터 지각
+        if time.seconds < 68760:
             user_attendance.attendance_result = 1
             user_attendance.save()
             
             user_cumulative_attendance.absence -= 1
             user_cumulative_attendance.save()
         else:
-            user_attendance.time = time
             user_attendance.attendance_result = 2
             user_attendance.save()
-            
+
             user_cumulative_attendance.absence -= 1
             user_cumulative_attendance.tardiness += 1
             user_cumulative_attendance.save()
@@ -141,7 +159,7 @@ class AttendanceListView(APIView):
     
     # 오늘의 출석부
     def get(self, request):
-        date = request.data['date']
+        date = request.GET['date']
         
         attendance = Attendance.objects.get(date=date) # 오늘 출석부
         user_attendances = UserAttendance.objects.filter(attendance=attendance)
@@ -174,10 +192,10 @@ class AttendanceListView(APIView):
         return Response(data={
             "message" : "success",
             "data" : {
-                "0" : PM,
-                "1" : DGN,
-                "2" : FE,
-                "3" : BE
+                "pm" : PM,
+                "design" : DGN,
+                "frontend" : FE,
+                "backend" : BE
             }
         }, status=status.HTTP_200_OK)
             

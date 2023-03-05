@@ -8,4 +8,4 @@ class AttendanceAdmin(admin.ModelAdmin):
 
 @admin.register(UserAttendance)
 class UserAttendance(admin.ModelAdmin):
-    list_display = ['id', 'time', 'user', 'attendance','attendance_result']
+    list_display = ['id', 'user', 'attendance','attendance_result']

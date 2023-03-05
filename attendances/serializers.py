@@ -9,10 +9,8 @@ class AttendanceSerializer(ModelSerializer):
         model = Attendance
         fields = '__all__'
 
+
 class UserAttendanceSerializer(ModelSerializer):
     class Meta:
         model = UserAttendance
-        fields = [
-            'time',
-            'attendance_result'
-        ]
+        fields = '__all__'
