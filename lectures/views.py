@@ -3,11 +3,11 @@ from .models import Session
 from .serializers import SessionSerializer
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework import viewsets
-from rest_framework import status
+from rest_framework.views import APIView
+from rest_framework import status, viewsets
+from django.http import Http404
 
 # class PostListAPIView(APIView):
-
 #     def post(self,request):
 #         serializer = SessionSerializer(data = request.data)
 #         if serializer.is_valid():
@@ -65,13 +65,11 @@ from rest_framework import status
 #         }, status=status.HTTP_200_OK)
 
 
-
-
 class SessionViewSet(viewsets.ModelViewSet):
     queryset = Session.objects.all()
     serializer_class = SessionSerializer
 
-    @action(detail=False, methods = ['GET'], url_path = 'sessionlisttest')
+    @action(detail=False, methods = ['GET'], url_path = '', url_name = 'get_sessions')
     def get_sessions(self, request):
         session_list = Session.objects.values()
 
@@ -117,6 +115,6 @@ class SessionViewSet(viewsets.ModelViewSet):
                 "0" : pm,
                 "1" : design,
                 "2" : front,
-                "3" : back
+                "3" : back,
             }
         }, status=status.HTTP_200_OK)

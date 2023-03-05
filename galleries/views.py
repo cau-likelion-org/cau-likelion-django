@@ -1,19 +1,154 @@
 # 데이터 처리
-from .models import Gallery,GalleryImage
-from .serializers import GallerySerializer, GalleryImageSerializer
-from django.views.decorators.csrf import csrf_exempt
-from django.utils.decorators import method_decorator
-
-# APIView를 사용하기 위해 import
-# from rest_framework.views import APIView
-# from rest_framework.response import Response
-# from rest_framework.parsers import MultiPartParser
+from .models import Gallery
+from .serializers import GallerySerializer
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from rest_framework.views import APIView
 from rest_framework import status, viewsets
-# from django.http import Http404
+from django.http import Http404
 
-class GalleryViewSet(viewsets.ModelViewSet):
-    queryset = Gallery.objects.all()
-    serializer_class = GallerySerializer
+# 갤러리의 목록을 보여주는 역할
+class GalleryList(APIView):
+    # 갤러리 리스트를 보여줄 때
+    def get(self, request):
+        gallery_list = Gallery.objects.values()
+
+        one = [] # 2021년
+        two = [] # 2022년
+        three = [] # 2023년 // 사이드프로젝트 이어받는 분들 이 다음부터 2024년은 four 2025년은 five 하시면 됩니다.       
+
+        for gallery in gallery_list:
+            if gallery['date'][0:4] == '2021':
+                one.append({
+                    'id' : gallery['gallery_id'],
+                    'title' : gallery['title'],
+                    'date' : gallery['date'],
+                    'thumbnail' : gallery['thumbnail'],
+                })
+            elif gallery['date'][0:4] == '2022':
+                two.append({
+                    'id' : gallery['gallery_id'],
+                    'title' : gallery['title'],
+                    'date' : gallery['date'],
+                    'thumbnail' : gallery['thumbnail'],
+                })
+            elif gallery['date'][0:4] == '2023':
+                three.append({
+                    'id' : gallery['gallery_id'],
+                    'title' : gallery['title'],
+                    'date' : gallery['date'],
+                    'thumbnail' : gallery['thumbnail'],
+                })
+
+
+        return Response(data={
+            "message" : "success",
+            "data" : {
+                "2021" : one,
+                "2022" : two,
+                "2023" : three,
+                # "2024" : four,
+            }
+        }, status=status.HTTP_200_OK)
+
+    # 새로운 추억 글을 작성할 때
+    def post(self, request):
+        # request.data는 사용자의 입력 데이터
+        serializer = GallerySerializer(data=request.data)
+        if serializer.is_valid(): #유효성 검사
+            serializer.save() # 저장
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        
+# Gallery의 detail을 보여주는 역할
+class GalleryDetail(APIView):
+    # Gallery 객체 가져오기
+    def get_object(self, pk):
+        try:
+            return Gallery.objects.get(pk=pk)
+        except Gallery.DoesNotExist:
+            raise Http404
+    
+    # Gallery의 detail 보기
+    def get(self, request, pk, format=None):
+        gallery = self.get_object(pk)
+        gallery_images = gallery.image.all()
+        images = []
+        for img in gallery_images:
+            images.append(str(img.image))
+            
+        return Response(data={
+            "message" : "success",
+            "data" : {
+                "id" : gallery.gallery_id,
+                "title" : gallery.title,
+                "image" : images,
+                "date" : gallery.date,
+                "description" : gallery.description
+            }
+        }, status=status.HTTP_200_OK)    
+
+    # Gallery 수정하기
+    def put(self, request, pk, format=None):
+        gallery = self.get_object(pk)
+        serializer = GallerySerializer(gallery, data=request.data) 
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data) 
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    # Gallery 삭제하기
+    def delete(self, request, pk, format=None):
+        gallery = self.get_object(pk)
+        gallery.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+# class GalleryViewSet(viewsets.ModelViewSet):
+#     queryset = Gallery.objects.all()
+#     serializer_class = GallerySerializer
+
+#     @action(detail=False, methods = ['GET'], url_path = '')
+#     def get_galleries(self, request):
+#         gallery_list = Gallery.objects.values()
+
+#         one = [] # 2021년
+#         two = [] # 2022년
+#         three = [] # 2023년 // 사이드프로젝트 이어받는 분들 이 다음부터 2024년은 four 2025년은 five 하시면 됩니다.       
+
+#         for gallery in gallery_list:
+#             if gallery['date'][0:4] == '2021':
+#                 one.append({
+#                     'id' : gallery['gallery_id'],
+#                     'title' : gallery['title'],
+#                     'date' : gallery['date'],
+#                     'thumbnail' : gallery['thumbnail'],
+#                 })
+#             elif gallery['date'][0:4] == '2022':
+#                 two.append({
+#                     'id' : gallery['gallery_id'],
+#                     'title' : gallery['title'],
+#                     'date' : gallery['date'],
+#                     'thumbnail' : gallery['thumbnail'],
+#                 })
+#             elif gallery['date'][0:4] == '2023':
+#                 three.append({
+#                     'id' : gallery['gallery_id'],
+#                     'title' : gallery['title'],
+#                     'date' : gallery['date'],
+#                     'thumbnail' : gallery['thumbnail'],
+#                 })
+
+
+#         return Response(data={
+#             "message" : "success",
+#             "data" : {
+#                 "2021" : one,
+#                 "2022" : two,
+#                 "2023" : three,
+#                 # "2024" : four,
+#             }
+#         }, status=status.HTTP_200_OK)
 
 # 추억게시판 목록 보여주기 + 새로운 게시글 생성
 # class GalleryList(APIView):
@@ -63,3 +198,8 @@ class GalleryViewSet(viewsets.ModelViewSet):
 #         gallery = self.get_object(pk)
 #         gallery.delete()
 #         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+# gallery = self.get_object(pk)
+        # serializer = GallerySerializer(gallery)
+        # return Response(serializer.data)
