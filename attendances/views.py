@@ -36,16 +36,16 @@ class AttendanceAdminView(APIView):
                 return Response(data={
                     "message" : "오늘의 출석부가 이미 생성되었습니다."
                 }, status=status.HTTP_400_BAD_REQUEST)
-                
-        attendance = Attendance.objects.create(
+        
+        new_attendance = Attendance.objects.create(
             date = date,
             password = password
         )
-        attendance.save()
+        new_attendance.save()
         
         attendance_json = {
-            "date" : attendance.date,
-            "password" : attendance.password
+            "date" : new_attendance.date,
+            "password" : new_attendance.password
         }
        
         # user별 출석부 create
@@ -54,7 +54,7 @@ class AttendanceAdminView(APIView):
         for user in users:
             new_user_attendance = UserAttendance.objects.create(
                 user = user,
-                attendance = attendance
+                attendance = new_attendance
             )
             new_user_attendance.save()
             
