@@ -205,6 +205,9 @@ def get_redirect_url(request):
     # 로그 console 출력
     logger = logging.getLogger()
     logger.setLevel(logging.INFO)
+    
+    logger.warning(host)
+    logger.warning(scheme)
     logger.warning(redirect_uri)
     
 
