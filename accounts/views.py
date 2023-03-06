@@ -197,7 +197,7 @@ def get_redirect_url(request):
     scheme = request.scheme
 
     if host == 'cau-likelion.org':
-        redirect_uri = f'{scheme}://cau-likelion.org/google'
+        redirect_uri = 'https://cau-likelion.org/google'
     else:
-        redirect_uri = f'{scheme}://localhost:3000/google'
+        redirect_uri = 'http://localhost:3000/google'
     return redirect_uri
