@@ -20,6 +20,7 @@ from rest_framework import status
 
 import uuid
 import json
+import logging
 
 BASE_URL = 'https://api.cau-likelion.org/'
 LOCAL_URL = 'http://localhost:8000/'
@@ -195,11 +196,19 @@ class SignUpView(APIView):
 def get_redirect_url(request):
     host = request.META['HTTP_HOST']
     scheme = request.scheme
-
+    
     if host == 'cau-likelion.org':
         redirect_uri = 'https://cau-likelion.org/google'
     else:
         redirect_uri = 'http://localhost:3000/google'
+        
+    # 로그 console 출력
+    logger = logging.getLogger()
+    logger.setLevel(logging.INFO)
+    logger.warning(redirect_uri)
     
-    print(redirect_uri)
+
+    stream_handler = logging.StreamHandler()
+    logger.addHandler(stream_handler)
+
     return redirect_uri
