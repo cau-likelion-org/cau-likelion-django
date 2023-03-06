@@ -41,7 +41,30 @@ def google_callback(request):
     code = body['code']
     state = 'state_parameter_passthrough_value'
     
-    redirect_uri = get_redirect_url(request)
+    ################
+    host = request.META['HTTP_HOST']
+    scheme = request.scheme
+    
+    if host == 'cau-likelion.org':
+        redirect_uri = 'https://cau-likelion.org/google'
+    else:
+        redirect_uri = 'http://localhost:3000/google'
+        
+    # 로그 console 출력
+    logger = logging.getLogger()
+    logger.setLevel(logging.INFO)
+    
+    logger.warning(host)
+    logger.warning(scheme)
+    logger.warning(redirect_uri)
+    
+
+    stream_handler = logging.StreamHandler()
+    logger.addHandler(stream_handler)
+
+    ##########
+    
+    #redirect_uri = get_redirect_url(request)
     
     # 1. 받은 코드로 구글에 access token 요청
     token_req = requests.post(f"https://oauth2.googleapis.com/token?client_id={client_id}&client_secret={client_secret}&code={code}&grant_type=authorization_code&redirect_uri={redirect_uri}&state={state}")
