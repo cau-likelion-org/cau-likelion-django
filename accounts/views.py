@@ -203,10 +203,11 @@ def get_redirect_url(request):
         host_domain = host.split('/google')[0]
         print(host_domain)
     
-    if host_domain == 'https://cau-likelion.org':
-        redirect_uri = 'https://cau-likelion.org/google'
-    else:
+    if host_domain == 'http://localhost:3000':
         redirect_uri = 'http://localhost:3000/google'
+    else:
+        redirect_uri = 'https://cau-likelion.org/google'
+        
         
     # 로그 console 출력
     logger = logging.getLogger()
