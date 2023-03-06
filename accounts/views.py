@@ -55,8 +55,11 @@ def google_callback(request):
     logger.setLevel(logging.INFO)
     
     logger.warning(host)
+    logger.warning(request.META.get('HTTP_REFERER'))
     logger.warning(scheme)
     logger.warning(redirect_uri)
+    
+    print(request.META.get('HTTP_REFERER'))
     
 
     stream_handler = logging.StreamHandler()
@@ -64,7 +67,7 @@ def google_callback(request):
 
     ##########
     
-    #redirect_uri = get_redirect_url(request)
+    # redirect_uri = get_redirect_url(request)
     
     # 1. 받은 코드로 구글에 access token 요청
     token_req = requests.post(f"https://oauth2.googleapis.com/token?client_id={client_id}&client_secret={client_secret}&code={code}&grant_type=authorization_code&redirect_uri={redirect_uri}&state={state}")
