@@ -200,4 +200,6 @@ def get_redirect_url(request):
         redirect_uri = 'https://cau-likelion.org/google'
     else:
         redirect_uri = 'http://localhost:3000/google'
+    
+    print(redirect_uri)
     return redirect_uri
