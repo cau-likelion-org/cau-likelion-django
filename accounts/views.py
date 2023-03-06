@@ -34,12 +34,12 @@ TEST = LOCAL_URL + 'api/google/callback'
 # access 있을때 -> 소셜로그인 O, 회원가입 X / 로그인
 # access 없을 때 -> 진짜 처음 소셜로그인 ('')
 
-def google_login(request):
-    scope = "https://www.googleapis.com/auth/userinfo.email"
-    # body =  json.loads(request.body.decode('utf-8'))
-    # client_id = body['client_id']
-    client_id = '312850794943-rogubu1don9b5fgn7tjf4jrf4ri98vcs.apps.googleusercontent.com'
-    return redirect(f"https://accounts.google.com/o/oauth2/v2/auth?client_id={client_id}&response_type=code&redirect_uri={TEST}&scope={scope}")
+# def google_login(request):
+#     scope = "https://www.googleapis.com/auth/userinfo.email"
+#     # body =  json.loads(request.body.decode('utf-8'))
+#     # client_id = body['client_id']
+#     client_id = '312850794943-rogubu1don9b5fgn7tjf4jrf4ri98vcs.apps.googleusercontent.com'
+#     return redirect(f"https://accounts.google.com/o/oauth2/v2/auth?client_id={client_id}&response_type=code&redirect_uri={TEST}&scope={scope}")
 
 # access token & 이메일 인증 요청 -> 회원가입 / 로그인 + jwt 토큰 발급
 def google_callback(request):
@@ -212,7 +212,7 @@ def get_redirect_url(request):
     scheme = request.scheme
 
     if host == 'cau-likelion.org':
-        redirect_uri = f'{scheme}://cau-likelion.org/google/callback'
+        redirect_uri = f'{scheme}://cau-likelion.org/google'
     else:
         redirect_uri = f'{scheme}://localhost:3000/google'
     return redirect_uri
