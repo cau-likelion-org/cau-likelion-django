@@ -197,7 +197,9 @@ def get_redirect_url(request):
     host = request.META.get('HTTP_REFERER')
     scheme = request.scheme
     
-    if host != None:
+    host_domain = host
+    
+    if host_domain != None:
         host_domain = host.split('/google')[0]
         print(host_domain)
     
