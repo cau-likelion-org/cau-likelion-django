@@ -212,6 +212,7 @@ def get_redirect_url(request):
     logger = logging.getLogger()
     logger.setLevel(logging.INFO)
     
+    logger.warning(host)
     logger.warning(host_domain)
     logger.warning(redirect_uri)
 
