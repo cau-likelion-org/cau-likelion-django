@@ -2,9 +2,6 @@ from django.template.loader import render_to_string
 from django.core.mail import send_mail
 from django.conf import settings
 from django.shortcuts import redirect
-from allauth.socialaccount.providers.google import views as google_view
-from dj_rest_auth.registration.views import SocialLoginView
-from allauth.socialaccount.providers.oauth2.client import OAuth2Client
 
 from json import JSONDecodeError
 from django.http import JsonResponse
@@ -33,13 +30,6 @@ TEST = LOCAL_URL + 'api/google/callback'
 
 # access 있을때 -> 소셜로그인 O, 회원가입 X / 로그인
 # access 없을 때 -> 진짜 처음 소셜로그인 ('')
-
-def google_login(request):
-    scope = "https://www.googleapis.com/auth/userinfo.email"
-    # body =  json.loads(request.body.decode('utf-8'))
-    # client_id = body['client_id']
-    client_id = '312850794943-rogubu1don9b5fgn7tjf4jrf4ri98vcs.apps.googleusercontent.com'
-    return redirect(f"https://accounts.google.com/o/oauth2/v2/auth?client_id={client_id}&response_type=code&redirect_uri={TEST}&scope={scope}")
 
 # access token & 이메일 인증 요청 -> 회원가입 / 로그인 + jwt 토큰 발급
 def google_callback(request):
@@ -114,11 +104,6 @@ def google_callback(request):
             'token':token,
             'is_active':new_user_info.is_active
         })
-
-class GoogleLogin(SocialLoginView):
-    adapter_class = google_view.GoogleOAuth2Adapter
-    callback_url = TEST
-    client_class = OAuth2Client
 
 # 인증코드 uuid 생성 (uuid1 : HostID, 현재 시간)
 def create_code():
