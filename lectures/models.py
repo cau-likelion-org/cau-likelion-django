@@ -50,7 +50,7 @@ class SessionImage(models.Model):
     session = models.ForeignKey(Session, related_name = "image", on_delete = models.CASCADE, 
                                     db_column= "session_id", verbose_name = "세션id값",)
     # 3. 사진 url 값                                
-    image = models.ImageField(verbose_name = "사진 url", max_length = 100)     
+    image = models.ImageField(verbose_name = "사진 url", max_length = 1000)     
     
     class Meta:
         verbose_name = "세션사진"

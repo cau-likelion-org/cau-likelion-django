@@ -47,7 +47,7 @@ class ProjectImage(models.Model):
     project_id = models.ForeignKey(Project, related_name = "image", on_delete = models.CASCADE, 
                                     db_column= "project_id", verbose_name = "프로젝트id값",)
     # 3. 사진 url 값                                
-    image = models.ImageField(verbose_name = "사진 url", max_length = 100)     
+    image = models.ImageField(verbose_name = "사진 url", max_length = 1000)     
 
     class Meta:
         verbose_name = "프로젝트사진"
