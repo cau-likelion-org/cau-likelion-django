@@ -47,6 +47,7 @@ class MypageAttendanceView(APIView):
             else:
                 user_cumulative_attendance = CumulativeAttendance.objects.get(user=user)
                 user_cumulative_attendance_json = {
+                    "user_id" : user.pk,
                     "name" : user.name,
                     "tardiness" : user_cumulative_attendance.tardiness,
                     "absence" : user_cumulative_attendance.absence,
