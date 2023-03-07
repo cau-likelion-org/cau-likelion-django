@@ -34,7 +34,7 @@ class GalleryImage(models.Model):
     gallery_id = models.ForeignKey(Gallery, related_name = "image", on_delete = models.CASCADE, 
                                     db_column= "gallery_id", verbose_name = "갤러리id값",)
     # 3. 사진 url 값                                
-    image = models.ImageField(verbose_name = "사진 url", max_length = 100)     
+    image = models.ImageField(verbose_name = "사진 url", max_length = 1000)     
 
     class Meta:
         verbose_name = "추억사진"

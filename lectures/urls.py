@@ -6,6 +6,6 @@ from rest_framework.routers import DefaultRouter
 
 
 urlpatterns = [
-     path('', PostListView.as_view()),
-     path('/<int:id>', PostView.as_view())
+     path('', SessionList.as_view()),
+     path('/<int:id>', SessionDetail.as_view())
 ]

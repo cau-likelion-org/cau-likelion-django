@@ -1,7 +1,6 @@
 from rest_framework import serializers
 from .models import Session, SessionImage
 
-
 class SessionImageSerializer(serializers.ModelSerializer):
 
     image = serializers.ImageField(use_url=True)
