@@ -71,21 +71,22 @@ class ProjectDetail(APIView):
         images = []
         for img in project_images:
             images.append(str(img.image))
+
+        dev_stack = map(int,project.dev_stack.split(","))
         # thumb = 
         return Response(data={
             "message" : "success",
             "data" : {
                 "id" : project.project_id,
                 "title" : project.title,
-                "dev_stack" : project.dev_stack,
+                "dev_stack" : dev_stack,
                 "subtitle" : project.subtitle,
                 # "thumbnail" : [thumb],
                 "generation" : project.version,
                 "team_name" : project.team_name,
                 "team_member" : project.team_member,
                 "image" : images,
-                "start_date" : project.start_date,
-                "end_date" : project.end_date,
+                "date" : project.start_date + "~" + project.end_date,
                 "description" : project.description,
                 "link" : project.link,
                 "category" : project.category,
