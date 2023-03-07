@@ -17,7 +17,7 @@ class Session(models.Model):
     # 3. 글 제목
     title = models.CharField(max_length= 50)
     # 4 트랙
-    track = models.CharField(null=True, blank = True, verbose_name='트랙', max_length=10)
+    track = models.IntegerField(null=True, blank = True, verbose_name='트랙', max_length=10)
     # 5. 썸네일
     thumbnail = models.ImageField(verbose_name = "썸네일", max_length=200)
     # 6. 글 내용
