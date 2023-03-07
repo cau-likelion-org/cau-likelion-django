@@ -17,13 +17,13 @@ class Session(models.Model):
     # 3. 글 제목
     title = models.CharField(max_length= 50)
     # 4 트랙
-    track = models.IntegerField(null=True, blank = True, verbose_name='트랙')
+    track = models.CharField(null=True, blank = True, verbose_name='트랙', max_length=10)
     # 5. 썸네일
-    thumbnail = models.CharField(verbose_name = "썸네일", max_length=200)
+    thumbnail = models.ImageField(verbose_name = "썸네일", max_length=200)
     # 6. 글 내용
     description = models.TextField(null=True, blank = True, verbose_name = "글 내용")
     # 7. 발표자
-    presenter = models.CharField(max_length=10, verbose_name='발표자')
+    presenter = models.CharField(max_length=10, verbose_name='발표자', default='변주현')
     # 8. 발표 주제
     topic = models.CharField(max_length=50, verbose_name='세션 주제')
     # 9. 몇차 세션
@@ -50,7 +50,7 @@ class SessionImage(models.Model):
     session = models.ForeignKey(Session, related_name = "image", on_delete = models.CASCADE, 
                                     db_column= "session_id", verbose_name = "세션id값",)
     # 3. 사진 url 값                                
-    image = models.CharField(verbose_name = "사진 url", max_length = 100)     
+    image = models.ImageField(verbose_name = "사진 url", max_length = 100)     
     
     class Meta:
         verbose_name = "세션사진"

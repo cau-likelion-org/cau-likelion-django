@@ -1,11 +1,16 @@
 # 데이터 처리
-from .models import Gallery
-from .serializers import GallerySerializer
+from .models import Gallery,GalleryImage
+from .serializers import GallerySerializer, GalleryImageSerializer
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status, viewsets
 from django.http import Http404
+from config.settings import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY
+import boto3
+from datetime import datetime
+from django.http import JsonResponse
+import uuid
 
 # 갤러리의 목록을 보여주는 역할
 class GalleryList(APIView):
@@ -53,12 +58,75 @@ class GalleryList(APIView):
 
     # 새로운 추억 글을 작성할 때
     def post(self, request):
-        # request.data는 사용자의 입력 데이터
+        s3_client = boto3.client(
+            's3',
+            aws_access_key_id = AWS_ACCESS_KEY_ID,
+            aws_secret_access_key = AWS_SECRET_ACCESS_KEY
+        )
+        
         serializer = GallerySerializer(data=request.data)
-        if serializer.is_valid(): #유효성 검사
-            serializer.save() # 저장
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        if serializer.is_valid():
+            serializer.save()
+
+        images = request.FILES.getlist('images')
+        # gallery_id = request.GET.get('gallery_id')
+        # thumbnail = request.FILES.get('thumbnail')
+        
+        for image in images :
+            # image_time = (str(datetime.now())).replace(" ","")
+            # image_type = (file.content_type).split("/")[1]
+            image_id = str(uuid.uuid4())
+            s3_client.upload_fileobj(
+                image,
+                "chunghaha",
+                image_id,
+                 ExtraArgs = {
+                     "ContentType" : image.content_type
+                }
+            )
+            image_url = f"http://chunghaha.s3.ap-northeast-2.amazonaws.com//{image_id}"
+            member_id = request.GET.get('member_id')
+
+            # Gallery.objects.create(
+            #     title = request.GET.get('title'),
+            #     thumbnail = thumbnail,
+            #     description = request.GET.get('description'),
+            #     member_id = member_id,
+            #     date = request.GET.get('date')
+            # )
+            
+            # image_url = image_url.replace(" ", "/")
+                
+            # image_time = (str(datetime.now())).replace(" ","")
+            # image_type = (thumbnail.content_type).split("/")[1]
+            # s3_client.upload_fileobj(
+            #     thumbnail,
+            #     "chunghaha",
+            #     str(uuid.uuid4()),
+            #     ExtraArgs = {
+            #          "ContentType" : thumbnail.content_type
+            #     }
+            # )
+
+            # GalleryImage.objects.create(
+            #     image = image_url,
+            #     gallery_id = gallery_id
+            # )
+        return Response(data={
+        "message" : "success",
+        "data" : {
+            "gallery_id" : 13,
+            "title" : request.GET.get('title')
+        }
+    }, status=status.HTTP_200_OK)
+
+
+        # request.data는 사용자의 입력 데이터
+        # serializer = GallerySerializer(data=request.data)
+        # if serializer.is_valid(): #유효성 검사
+        #     serializer.save() # 저장
+        #     return Response(serializer.data, status=status.HTTP_201_CREATED)
+        # return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         
 # Gallery의 detail을 보여주는 역할

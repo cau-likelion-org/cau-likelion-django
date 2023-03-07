@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status, viewsets
 from django.http import Http404
+import boto3
 
 class ProjectList(APIView):
     # 프로젝트 리스트를 보여줄 때
@@ -21,7 +22,7 @@ class ProjectList(APIView):
                     'id' : project['project_id'],
                     'title' : project['title'],
                     'dev_stack' : project['dev_stack'],
-                    'description' : project['description'],
+                    'subtitle' : project['subtitle'],
                     'category' : project['category'],
                     'thumbnail' : project['thumbnail'],
                 })
@@ -30,7 +31,7 @@ class ProjectList(APIView):
                     'id' : project['project_id'],
                     'title' : project['title'],
                     'dev_stack' : project['dev_stack'],
-                    'description' : project['description'],
+                    'subtitle' : project['subtitle'],
                     'category' : project['category'],
                     'thumbnail' : project['thumbnail'],
                 })
@@ -39,7 +40,7 @@ class ProjectList(APIView):
                     'id' : project['project_id'],
                     'title' : project['title'],
                     'dev_stack' : project['dev_stack'],
-                    'description' : project['description'],
+                    'subtitle' : project['subtitle'],
                     'category' : project['category'],
                     'thumbnail' : project['thumbnail'],
                 })
@@ -54,6 +55,7 @@ class ProjectList(APIView):
             }
         }, status=status.HTTP_200_OK)
 
+# Project의 detail을 보여주는 역할
 class ProjectDetail(APIView):
     # Project 객체 가져오기
     def get_object(self, pk):
@@ -62,14 +64,14 @@ class ProjectDetail(APIView):
         except Project.DoesNotExist:
             raise Http404
     
-    # Gallery의 detail 보기
+    # Project의 detail 보기
     def get(self, request, pk, format=None):
         project = self.get_object(pk)
         project_images = project.image.all()
         images = []
         for img in project_images:
             images.append(str(img.image))
-            
+        # thumb = 
         return Response(data={
             "message" : "success",
             "data" : {
@@ -77,7 +79,7 @@ class ProjectDetail(APIView):
                 "title" : project.title,
                 "dev_stack" : project.dev_stack,
                 "subtitle" : project.subtitle,
-                "thumbnail" : project.thumbnail,
+                # "thumbnail" : [thumb],
                 "generation" : project.version,
                 "team_name" : project.team_name,
                 "team_member" : project.team_member,
@@ -93,7 +95,7 @@ class ProjectDetail(APIView):
     # Project 수정하기
     def put(self, request, pk, format=None):
         gallery = self.get_object(pk)
-        serializer = GallerySerializer(gallery, data=request.data) 
+        serializer = ProjectSerializer(gallery, data=request.data) 
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data) 

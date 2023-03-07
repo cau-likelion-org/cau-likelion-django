@@ -13,7 +13,7 @@ class Project(models.Model):
     # 4 기술 스택
     dev_stack = models.CharField(null=False, blank = False, max_length = 200, verbose_name='기술 스택')
     # 5. 썸네일
-    thumbnail = models.CharField(verbose_name = "썸네일", max_length=200)
+    thumbnail = models.ImageField(verbose_name = "썸네일", max_length=200)
     # 6. 프로젝트 상세 설명
     description = models.TextField(null=True, blank = True, verbose_name = "글 내용")
     # 7. 기수
@@ -40,17 +40,6 @@ class Project(models.Model):
     def __str__(self):
         return self.title    
 
-# class Link(models.Model):
-#     CHOICES = (
-#         ('github' , 'github'),
-#         ('youtube' , 'youtube'),
-#         ('web' , 'web'),
-#     )
-
-#     type = models.CharField(max_length=100, choices = CHOICES)
-#     src = models.URLField(max_length=1024)
-#     project = models.ForeignKey(Project, on_delete = models.CASCADE, db_column='project')
-
 class ProjectImage(models.Model):
     # 1. 사진 id 값
     id = models.AutoField(primary_key=True, null = False, blank = False)
@@ -58,7 +47,7 @@ class ProjectImage(models.Model):
     project_id = models.ForeignKey(Project, related_name = "image", on_delete = models.CASCADE, 
                                     db_column= "project_id", verbose_name = "프로젝트id값",)
     # 3. 사진 url 값                                
-    image = models.CharField(verbose_name = "사진 url", max_length = 100)     
+    image = models.ImageField(verbose_name = "사진 url", max_length = 100)     
 
     class Meta:
         verbose_name = "프로젝트사진"
