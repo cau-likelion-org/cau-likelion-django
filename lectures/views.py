@@ -89,7 +89,7 @@ class SessionDetail(APIView):
             "message" : "success",
             "data" : {
                 "title" : session.title,
-                "thumbnail" : images,
+                "image" : images,
                 "track" : session.track,
                 "presenter" : session.presenter,
                 "topic" : session.topic,
