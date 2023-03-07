@@ -86,7 +86,7 @@ class ProjectDetail(APIView):
                 "team_name" : project.team_name,
                 "team_member" : project.team_member,
                 "image" : images,
-                "date" : project.start_date + "~" + project.end_date,
+                "date" : project.start_date + " ~ " + project.end_date,
                 "description" : project.description,
                 "link" : project.link,
                 "category" : project.category,
