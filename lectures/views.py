@@ -11,7 +11,7 @@ from django.http import Http404
 class SessionList(APIView):
     # 세션 리스트를 보여줄 때
     def get(self,request):
-        session_list = Session.objects.all()
+        session_list = Session.objects.values()
     
         pm = []
         design = []
@@ -20,23 +20,41 @@ class SessionList(APIView):
         etc = [] # 기타
 
         for session in session_list:
-            session_json = {
-                "id" : session.session_id,
-                "title" : session.title,
-                "degree" : session.degree,
-                "thumbnail" : session.thumbnail
-            }
-            
-            if session.track == 0:
-                pm.append(session_json)
-            elif session.track == 1:
-                design.append(session_json)
-            elif session.track == 2:
-                front.append(session_json)
-            elif session.track == 3:
-                back.append(session_json)
-            elif session.track == 4:
-                etc.append(session_json)
+            if session['track'] == 0:
+                pm.append({
+                "id" : session['session_id'],
+                "title" : session['title'],
+                "degree" : session['degree'],
+                "thumbnail" : session['thumbnail']
+                })
+            elif session['track'] == 1:
+                design.append({
+                "id" : session['session_id'],
+                "title" : session['title'],
+                "degree" : session['degree'],
+                "thumbnail" : session['thumbnail']
+                })
+            elif session['track'] == 2:
+                front.append({
+                "id" : session['session_id'],
+                "title" : session['title'],
+                "degree" : session['degree'],
+                "thumbnail" : session['thumbnail']
+                })
+            elif session['track'] == 3:
+                back.append({
+                "id" : session['session_id'],
+                "title" : session['title'],
+                "degree" : session['degree'],
+                "thumbnail" : session['thumbnail']
+                })
+            elif session['track'] == 4:
+                etc.append({
+                "id" : session['session_id'],
+                "title" : session['title'],
+                "degree" : session['degree'],
+                "thumbnail" : session['thumbnail']
+                })
 
 
         return Response(data={
