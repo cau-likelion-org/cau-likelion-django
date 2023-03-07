@@ -17,6 +17,7 @@ class SessionList(APIView):
         design = []
         front = []
         back = []
+        etc = [] # 기타
 
         for session in session_list:
             session_json = {
@@ -32,8 +33,10 @@ class SessionList(APIView):
                 design.append(session_json)
             elif session.track == 2:
                 front.append(session_json)
-            else:
+            elif session.track == 3:
                 back.append(session_json)
+            elif session.track == 4:
+                etc.append(session_json)
 
 
         return Response(data={
@@ -43,6 +46,7 @@ class SessionList(APIView):
                 "1" : design,
                 "2" : front,
                 "3" : back,
+                "4" : etc,
             }
         }, status=status.HTTP_200_OK)
 
