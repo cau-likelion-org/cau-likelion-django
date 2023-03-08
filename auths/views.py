@@ -19,7 +19,11 @@ def get_user_from_access_token(access_token):
         response_data = {'error':'Token is expired or invalid.'}
         return JsonResponse(response_data, status=401)
     user_id=access_token_obj['user_id']
+
     user=User.objects.get(id=user_id)
     return user
+        
+    
+    
 
     
