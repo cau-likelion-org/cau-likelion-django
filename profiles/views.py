@@ -14,16 +14,11 @@ class ProfileView(APIView):
     def get(self, request):
         token = request.META.get('HTTP_AUTHORIZATION')
         user = get_user_from_access_token(token)
-        
-        if user is None:
-            print('None')
-        else:
-            print(user)
             
         if user is None:
             return Response(data={
                 "message" : "access_token으로 user를 찾을 수 없습니다."
-            }, status=status.HTTP_400_BAD_REQUEST)
+            }, status=status.HTTP_401_UNAUTHORIZED)
         
         if user.is_active == False:
             return Response(data={
