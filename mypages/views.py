@@ -17,6 +17,11 @@ class MypageAttendanceView(APIView):
         token = request.META.get('HTTP_AUTHORIZATION')
         user = get_user_from_access_token(token)
         
+        if user is None:
+            return Response(data={
+                "message" : "access_token으로 user를 찾을 수 없습니다."
+            }, status=status.HTTP_401_UNAUTHORIZED)
+        
         if user.generation == 11:
             # 운영진 -> 아기사자 전체 누적 출석
             if user.is_admin == True:
@@ -67,6 +72,11 @@ class MypageAttendanceView(APIView):
     def post(self, request):
         token = request.META.get('HTTP_AUTHORIZATION')
         user = get_user_from_access_token(token)
+        
+        if user is None:
+            return Response(data={
+                "message" : "access_token으로 user를 찾을 수 없습니다."
+            }, status=status.HTTP_401_UNAUTHORIZED)
         
         member_id = request.data['user_id']
         tardiness = request.data['tardiness']
