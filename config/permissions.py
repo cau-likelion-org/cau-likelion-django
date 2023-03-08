@@ -13,6 +13,10 @@ class IsManagementTeam(BasePermission):
         # user = User.objects.get(access_token = token)
         # payload = jwt.decode(token, settings.WEF_KEY, algorithms='HS256')
         # user = User.objects.get(id=payload.get('id'))
+        
+        if user is None:
+            return False
+        
         if user.is_admin != True:
             return False
         return True

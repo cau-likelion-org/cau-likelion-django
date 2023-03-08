@@ -132,6 +132,12 @@ class CauMailView(APIView):
         code = cau_authentication(email)
         token = request.META.get('HTTP_AUTHORIZATION')
         user = get_user_from_access_token(token)
+        
+        if user is None:
+            return Response(data={
+                "message" : "access_token으로 user를 찾을 수 없습니다."
+            }, status=status.HTTP_401_UNAUTHORIZED)
+        
         user.code = code
         user.save()
         return JsonResponse({
@@ -141,6 +147,12 @@ class CauMailView(APIView):
     def post(self, request):
         token = request.META.get('HTTP_AUTHORIZATION')
         user = get_user_from_access_token(token)
+        
+        if user is None:
+            return Response(data={
+                "message" : "access_token으로 user를 찾을 수 없습니다."
+            }, status=status.HTTP_401_UNAUTHORIZED)
+        
         code = user.code
         if request.data['code'] != code:
             return Response(False)
@@ -152,6 +164,11 @@ class SignUpView(APIView):
     def put(self, request):
         token = request.META.get('HTTP_AUTHORIZATION')
         user = get_user_from_access_token(token)
+        
+        if user is None:
+            return Response(data={
+                "message" : "access_token으로 user를 찾을 수 없습니다."
+            }, status=status.HTTP_401_UNAUTHORIZED)
         
         if user.is_active == False:
             update_serial = UserSerializer(user, data=request.data)

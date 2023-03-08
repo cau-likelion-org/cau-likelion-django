@@ -77,6 +77,11 @@ class AttendanceView(APIView):
         user = get_user_from_access_token(token)
         date = request.GET['date']
         
+        if user is None:
+            return Response(data={
+                "message" : "access_token으로 user를 찾을 수 없습니다."
+            }, status=status.HTTP_401_UNAUTHORIZED)
+        
         date_result = datetime.strptime(date, "%Y-%m-%d")
         
         try:
@@ -113,6 +118,11 @@ class AttendanceView(APIView):
     def post(self, request):
         token = request.META.get('HTTP_AUTHORIZATION')
         user = get_user_from_access_token(token)
+        
+        if user is None:
+            return Response(data={
+                "message" : "access_token으로 user를 찾을 수 없습니다."
+            }, status=status.HTTP_401_UNAUTHORIZED)
         
         today = datetime.now().date()
         now = datetime.now()
