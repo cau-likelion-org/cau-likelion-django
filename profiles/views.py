@@ -15,7 +15,7 @@ class ProfileView(APIView):
         token = request.META.get('HTTP_AUTHORIZATION')
         user = get_user_from_access_token(token)
         
-        if user == None:
+        if user is None:
             return Response(data={
                 "message" : "access_token으로 user를 찾을 수 없습니다."
             }, status=status.HTTP_401_BAD_REQUEST)
