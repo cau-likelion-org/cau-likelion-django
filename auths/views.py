@@ -16,9 +16,8 @@ def get_user_from_access_token(access_token):
         access_token_obj = AccessToken(access_token)
         access_token_obj.check_exp()
     except(TokenError, InvalidToken):
-        print('왜안되')
-        response_data = {'error':'Token is expired or invalid.'}
-        return JsonResponse(response_data, status=401)
+        # response_data = {'error':'Token is expired or invalid.'}
+        return None
     
     user_id=access_token_obj['user_id']
 
