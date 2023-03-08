@@ -18,7 +18,7 @@ class ProfileView(APIView):
         if user is None:
             return Response(data={
                 "message" : "access_token으로 user를 찾을 수 없습니다."
-            }, status=status.HTTP_401_BAD_REQUEST)
+            }, status=status.HTTP_400_BAD_REQUEST)
         
         if user.is_active == False:
             return Response(data={
