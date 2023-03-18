@@ -1,5 +1,6 @@
 # 데이터 처리
 from .models import Gallery
+from accounts.models import User
 from .serializers import GallerySerializer
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -61,6 +62,12 @@ class GalleryList(APIView):
     def post(self, request):
         thumbnail = request.FILES['thumbnail'] # request의 썸네일 파일 가져오기
         gallery_title = request.POST['title'] # request의 제목 가져오기
+        req_description = request.POST['description'] # request의 사진 내용설명 가져오기
+        req_date = request.POST['date']
+        login_email = request.POST['login_email']
+        memberid = User.objects.get(
+            email = login_email
+        )
         thumbnail_url = f"galleries/{gallery_title}/thumbnail" # DB에 저장될 썸네일 이미지 url 설정
         self.s3_client.upload_fileobj(
             thumbnail,
@@ -70,6 +77,14 @@ class GalleryList(APIView):
                     "ContentType": thumbnail.content_type
                 }
         )
+        gallery_post = Gallery.objects.create(
+            title = gallery_title,
+            thumbnail = "https://dsu3068f46mzk.cloudfront.net/" + thumbnail_url,
+            description = req_description,
+            date = req_date,
+            member_id = memberid
+        )
+        gallery_post.save()
         # ------------------ 여기까지 request에서 thumbnail을 가져와서 s3에 업로드한 내용 ------------------------
         
         images = request.FILES.getlist('images')
