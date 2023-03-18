@@ -1,5 +1,5 @@
 # 데이터 처리
-from .models import Gallery
+from .models import Gallery, GalleryImage
 from accounts.models import User
 from .serializers import GallerySerializer
 from rest_framework.response import Response
@@ -99,6 +99,10 @@ class GalleryList(APIView):
                         "ContentType": image.content_type
                     }
             )
+            image = GalleryImage.objects.create(
+                gallery_id = gallery_post,
+                image = "https://dsu3068f46mzk.cloudfront.net/" + image_url
+            )
             cnt = cnt + 1
 
         # ------------------ 여기까지 request에서 사진들 받아서 한 장씩 s3에 업로드한 내용 ---------------------------
@@ -106,9 +110,7 @@ class GalleryList(APIView):
         return Response(data={
         "message" : "success",
         "data" : {
-            "hello" : "world"
-            # "gallery_id" : 13,
-            # "title" : request.GET.get('title')
+            "title" : gallery_title
         }
     }, status=status.HTTP_200_OK)
 
