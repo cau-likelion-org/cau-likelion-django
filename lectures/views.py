@@ -171,43 +171,18 @@ class SessionDetail(APIView):
                 "degree" : session.degree
             }
         }, status=status.HTTP_200_OK)  
-        # session = Session.objects.get(session_id=id)
         
-        # image_list = []
-        
-        # session_images = SessionImage.objects.filter(session=session)
-        
-        # for session_image in session_images:
-        #     image_url = session_image.image
-        #     image_list.append(image_url)
-        
-        # if session.track == 0:
-        #     track = "기획"
-        # elif session.track == 1:
-        #     track = "디자인"
-        # elif session.track == 2:
-        #     track = "프론트엔드"
-        # else:
-        #     track = "백엔드"
-        
-        # session_detail_json = {
-        #     "title" : session.title,
-        #     "thumbnail" : image_list,
-        #     "track" : track,
-        #     "presenter" : session.presenter,
-        #     "topic" : session.topic,
-        #     "description" : session.description,
-        #     "date" : session.date,
-        #     "reference" : session.reference,
-        #     "degree" : session.degree
-        # }
-        
-        # return Response(data={
-        #     "message" : "success",
-        #     "data" : session_detail_json
-        # }, status=status.HTTP_200_OK)
-        
-        
-        
+        # session 수정하기
+    def put(self, request, pk, format=None):
+        gallery = self.get_object(pk)
+        serializer = SessionSerializer(gallery, data=request.data) 
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data) 
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
+    # Project 삭제하기
+    def delete(self, request, pk, format=None):
+        session = self.get_object(pk)
+        session.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
