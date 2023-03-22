@@ -3,6 +3,7 @@ from django.http import JsonResponse
 from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
 from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
 from accounts.models import User
+import datetime
 
 def get_tokens_for_user(user):
     refresh = RefreshToken.for_user(user)
@@ -23,6 +24,13 @@ def get_user_from_access_token(access_token):
 
     user=User.objects.get(id=user_id)
     return user
+
+def get_generation():
+    today = datetime.today()
+    year = today.year
+    generation = year - 2012
+    
+    return generation
         
     
     

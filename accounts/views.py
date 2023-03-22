@@ -24,8 +24,8 @@ import logging
 
 BASE_URL = 'https://api.cau-likelion.org/'
 LOCAL_URL = 'http://localhost:8000/'
-GOOGLE_CALLBACK_URI = BASE_URL + 'api/google/callback'
-TEST = LOCAL_URL + 'api/google/callback'
+GOOGLE_CALLBACK_URI = BASE_URL + 'google/callback'
+TEST = LOCAL_URL + 'google/callback'
 
 # request -> code, access token
 
