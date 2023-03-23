@@ -22,7 +22,7 @@ import uuid
 import json
 import logging
 
-BASE_URL = 'https://api.cau-likelion.org/'
+BASE_URL = 'https://api-cau-likelion.shop/'
 LOCAL_URL = 'http://localhost:8000/'
 GOOGLE_CALLBACK_URI = BASE_URL + 'google/callback'
 TEST = LOCAL_URL + 'google/callback'
