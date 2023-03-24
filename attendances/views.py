@@ -82,7 +82,7 @@ class AttendanceView(APIView):
                 "message" : "access_token으로 user를 찾을 수 없습니다."
             }, status=status.HTTP_401_UNAUTHORIZED)
         
-        date_result = datetime.strptime(date, "%Y-%m-%d")
+        date_result = datetime.datetime.strptime(date, "%Y-%m-%d")
         
         try:
             attendance = Attendance.objects.get(date=date_result)
@@ -136,7 +136,7 @@ class AttendanceView(APIView):
         user_attendance = UserAttendance.objects.get(attendance=attendance, user=user)
         user_cumulative_attendance = CumulativeAttendance.objects.get(user=user)
         
-        time = now - datetime.strptime(now.strftime("%Y%m%d"), "%Y%m%d")
+        time = now - datetime.datetime.strptime(now.strftime("%Y%m%d"), "%Y%m%d")
         
         
         # 6분부터 지각
