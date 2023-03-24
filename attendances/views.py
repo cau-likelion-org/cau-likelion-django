@@ -136,7 +136,7 @@ class AttendanceView(APIView):
         user_attendance = UserAttendance.objects.get(attendance=attendance, user=user)
         user_cumulative_attendance = CumulativeAttendance.objects.get(user=user)
         
-        time = now - datetime.strptime(now.strftime("%Y%m%d"), "%Y%m%d")
+        time = now - datetime.datetime.strptime(now.strftime("%Y%m%d"), "%Y%m%d")
         
         
         # 6분부터 지각
