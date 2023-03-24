@@ -218,7 +218,6 @@ def get_redirect_url(request):
     
     if host_domain != None:
         host_domain = host.split('/google')[0]
-        print(host_domain)
     
     if host_domain == 'http://localhost:3000':
         redirect_uri = 'http://localhost:3000/google'
