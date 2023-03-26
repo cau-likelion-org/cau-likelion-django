@@ -95,7 +95,7 @@ class SessionList(APIView):
         thumbnail_url = f"sessions/{title}/thumbnail" # DB에 저장될 썸네일 이미지 url 설정
         self.s3_client.upload_fileobj(
             thumbnail,
-            "chunghaha",
+            "realchunghaha",
             thumbnail_url,
             ExtraArgs={
                     "ContentType": thumbnail.content_type
@@ -121,7 +121,7 @@ class SessionList(APIView):
             image_url = f"sessions/{title}/image{cnt}"
             self.s3_client.upload_fileobj(
                 image,
-                "chunghaha",
+                "realchunghaha",
                 image_url,
                 ExtraArgs={
                         "ContentType": image.content_type
