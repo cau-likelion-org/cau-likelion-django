@@ -93,7 +93,7 @@ class ProjectList(APIView):
             title = title,
             subtitle = subtitle,
             dev_stack = dev_stack,
-            thumbnail = "https://dsu3068f46mzk.cloudfront.net/" + thumbnail_url,
+            thumbnail = "https://https://d2ojsutiiokydr.cloudfront.net/" + thumbnail_url,
             version = generation,
             team_name = team_name,
             team_member = team_member,
@@ -120,7 +120,7 @@ class ProjectList(APIView):
             )
             image = ProjectImage.objects.create(
                 project_id = project_post,
-                image = "https://dsu3068f46mzk.cloudfront.net/" + image_url
+                image = "https://d2ojsutiiokydr.cloudfront.net/" + image_url
             )
             cnt = cnt + 1
 
