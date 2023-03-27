@@ -25,5 +25,21 @@ DATABASES = {
 		'PASSWORD': get_secret("DB_PASSWORD"),
 		'HOST': get_secret("DB_HOST"),
 		'PORT': '3306',
-	}
+	},
+	'chunghaha' : {
+     	'ENGINE': 'django.db.backends.mysql',
+		'NAME': 'chunghaha',
+		'USER': 'admin',
+		'PASSWORD': get_secret("DB_PASSWORD"),
+		'HOST': get_secret("DB_HOST"),
+		'PORT': '3306',
+	},
+ 	'chunghaha-dev': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'chunghaha-dev',
+        'USER': 'admin',
+        'PASSWORD': get_secret("DB_PASSWORD"),
+        'HOST': get_secret("DB_LOCAL_HOST"),
+        'PORT': '3306',
+    },
 }
