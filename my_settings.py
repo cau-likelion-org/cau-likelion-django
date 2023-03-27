@@ -26,7 +26,7 @@ DATABASES = {
 		'HOST': get_secret("DB_LOCAL_HOST"),
 		'PORT': '3306',
 	},
-	'chunghaha' : {
+	'ㅊ' : {
      	'ENGINE': 'django.db.backends.mysql',
 		'NAME': 'chunghaha',
 		'USER': 'admin',
