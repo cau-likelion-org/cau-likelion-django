@@ -23,7 +23,7 @@ DATABASES = {
 		'NAME': 'chunghaha',
 		'USER': 'admin',
 		'PASSWORD': get_secret("DB_PASSWORD"),
-		'HOST': get_secret("DB_LOCAL_HOST"),
+		'HOST': get_secret("DB_HOST"),
 		'PORT': '3306',
 	},
 	'chunghaha' : {
