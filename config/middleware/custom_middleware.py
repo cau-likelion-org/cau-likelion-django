@@ -1,19 +1,15 @@
-from django.utils.deprecation import MiddlewareMixin
-import logging
+class DatabaseMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
 
-class SetDatabaseMiddleware(MiddlewareMixin):
-    def process_request(self, request):
-        if 'HTTP_ORIGIN' in request.META:
-            origin = request.META['HTTP_ORIGIN']
-            
-            logger = logging.getLogger()
-            logger.setLevel(logging.INFO)
-            logger.warning(origin)
-            stream_handler = logging.StreamHandler()
-            logger.addHandler(stream_handler)
-            
-            if 'cau-likelion.org' in origin:
-                request.session['database'] = 'chunghaha'
-            elif 'dev.cau-likelion.org' in origin:
-                request.session['database'] = 'chunghaha-dev'
-        return None
+    def __call__(self, request):
+        if request.META['HTTP_HOST'] == 'cau-likelion.org':
+            request.database = 'chunghaha'
+        elif request.META['HTTP_HOST'] == 'dev.cau-likelion.org':
+            request.database = 'dev_chunghaha'
+        else:
+            request.database = 'default'
+
+        response = self.get_response(request)
+
+        return response
