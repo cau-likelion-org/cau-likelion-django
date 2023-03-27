@@ -104,7 +104,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     #'django.middleware.multipart.MultipartMiddleware',
-    'config.middleware.custom_middleware.DatabaseMiddleware',
+    'config.middleware.custom_middleware.SetDatabaseMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
