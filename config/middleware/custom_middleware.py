@@ -4,7 +4,7 @@ class DatabaseMiddleware:
 
     def __call__(self, request):
         print(request.META['HTTP_HOST'])
-        if request.META['HTTP_HOST'] == 'cau-likelion.org' and 'api-cau-likelion':
+        if request.META['HTTP_HOST'] == 'cau-likelion.org' and 'api-cau-likelion.shop':
             request.database = 'chunghaha'
         elif request.META['HTTP_HOST'] == 'dev.cau-likelion.org':
             request.database = 'chunghaha-dev'
