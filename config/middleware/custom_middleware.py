@@ -1,4 +1,5 @@
 import logging
+import settings
 
 class SetDatabaseMiddleware:
     def __init__(self, get_response):
@@ -7,22 +8,17 @@ class SetDatabaseMiddleware:
     def __call__(self, request):
         host = request.META.get('HTTP_REFERER')
         
-        # 로그 console 출력
-        logger = logging.getLogger()
-        logger.setLevel(logging.INFO)
-        
-        logger.warning(host)
-       
-        stream_handler = logging.StreamHandler()
-        logger.addHandler(stream_handler)
-        
         if host == 'https://cau-likelion.org/':
-            request.database = 'chunghaha'
+            db_name = 'chunghaha'
         elif host == 'https://dev.cau-likelion.org/':
-            request.database = 'dev_chunghaha'
+            db_name = 'chunghaha-dev'
         else:
-            request.database = 'default'
-
+            db_name = None
+        
+        if db_name:
+            settings.DATABASE_ROUTERS = ['config.routers.DatabaseRouter']
+            settings.DATABASES[db_name]['ATOMIC_REQUESTS'] = True
+        
         response = self.get_response(request)
 
         return response
