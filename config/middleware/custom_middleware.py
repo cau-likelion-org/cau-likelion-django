@@ -5,7 +5,7 @@ class SetDatabaseMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        host = request.META.get('HTTP_HOST')
+        host = request.META.get('HTTP_REFERER')
         
         # 로그 console 출력
         logger = logging.getLogger()
