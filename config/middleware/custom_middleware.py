@@ -5,7 +5,7 @@ class SetDatabaseMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        host = request.META.get('HTTP_X_FORWARDED_HOST')
+        host = request.META.get('HTTP_X_FORWARDED_FOR')
         proto = request.META.get('HTTP_X_FORWARDED_PROTO', 'http')
         
         
