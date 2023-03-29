@@ -22,6 +22,34 @@ class MypageAttendanceView(APIView):
                 "message" : "access_token으로 user를 찾을 수 없습니다."
             }, status=status.HTTP_401_UNAUTHORIZED)
         
+        
+        # 결석 update
+        today = datetime.now().date()
+        now = datetime.now()
+        time = now - datetime.datetime.strptime(now.strftime("%Y%m%d"), "%Y%m%d")
+           
+        try:
+            # 세션 O
+            attendance = Attendance.objects.get(date=today)
+            
+            # 10시 기준 무단 결석 update
+            if time.seconds > 79200:
+                user_attendances = UserAttendance.objects.filter(attendance=attendance)
+                
+                for user_atttendance in user_attendances:
+                    # 결석
+                    if user_atttendance.attendance_result == 0:
+                        user = user_atttendance.user
+                        cumulative_attendance = CumulativeAttendance.objects.get(user=user)
+                        
+                        cumulative_attendance.truancy += 1
+                        cumulative_attendance.save()
+                    
+        except: 
+            # 세션 X
+            pass
+        
+        # 누적 출석부 get
         if user.generation == 11:
             # 운영진 -> 아기사자 전체 누적 출석
             if user.is_admin == True:
