@@ -58,10 +58,6 @@ class AttendanceAdminView(APIView):
             )
             new_user_attendance.save()
             
-            user_cumulative_attendance = CumulativeAttendance.objects.get(user=user)
-            user_cumulative_attendance.absence += 1 # 처음 출석부 생성되면 default 결석
-            user_cumulative_attendance.save()
-            
         
         return Response(data={
             "message" : "success",
@@ -143,14 +139,11 @@ class AttendanceView(APIView):
         if time.seconds < 68760:
             user_attendance.attendance_result = 1
             user_attendance.save()
-            
-            user_cumulative_attendance.absence -= 1
-            user_cumulative_attendance.save()
+
         else:
             user_attendance.attendance_result = 2
             user_attendance.save()
 
-            user_cumulative_attendance.absence -= 1
             user_cumulative_attendance.tardiness += 1
             user_cumulative_attendance.save()
         
