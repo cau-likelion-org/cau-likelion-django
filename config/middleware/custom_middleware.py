@@ -35,6 +35,4 @@ class SetDatabaseMiddleware:
 
         return response
     
-    def process_exception(self, request, exception):
-        # 에러 발생 시 기존 설정으로 되돌리기
-        connections.databases = settings.DATABASES
+   
