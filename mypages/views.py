@@ -24,8 +24,8 @@ class MypageAttendanceView(APIView):
         
         
         # 결석 update
-        today = datetime.now().date()
-        now = datetime.now()
+        today = datetime.datetime.now().date()
+        now = datetime.datetime.now()
         time = now - datetime.datetime.strptime(now.strftime("%Y%m%d"), "%Y%m%d")
            
         try:
