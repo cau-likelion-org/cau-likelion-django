@@ -21,9 +21,13 @@ def get_user_from_access_token(access_token):
         return None
     
     user_id=access_token_obj['user_id']
-
-    user=User.objects.get(id=user_id)
-    return user
+    
+    try:
+        user=User.objects.get(id=user_id)
+        return user
+    except:
+        return None
+    
 
 def get_generation():
     today = datetime.today()
