@@ -142,11 +142,12 @@ class AttendanceView(APIView):
             user_attendance.save()
 
         else:
-            user_attendance.attendance_result = 2
+            #user_attendance.attendance_result = 2
+            user_attendance.attendance_result = 1
             user_attendance.save()
 
-            user_cumulative_attendance.tardiness += 1
-            user_cumulative_attendance.save()
+            #user_cumulative_attendance.tardiness += 1
+            #user_cumulative_attendance.save()
         
         return Response(data={
             'message' : 'success',
