@@ -16,7 +16,7 @@ class SetDatabaseMiddleware:
         logger = logging.getLogger()
         logger.setLevel(logging.INFO)
         
-        logger.warning(backend)
+        logger.warning(host)
 
         stream_handler = logging.StreamHandler()
         logger.addHandler(stream_handler)
