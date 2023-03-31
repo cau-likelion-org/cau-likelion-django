@@ -29,6 +29,7 @@ class SetDatabaseMiddleware:
         else:
             db_name = 'default'
 
+        print(db_name)
         # 동적으로 DB 설정 변경
         settings.DATABASES['default'] = settings.DATABASES[db_name]
 
