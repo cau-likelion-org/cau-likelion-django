@@ -12,16 +12,6 @@ class SetDatabaseMiddleware:
         host = request.META.get('HTTP_REFERER')
         backend = request.META.get('HTTP_HOST')
         
-         # 로그 console 출력
-        logger = logging.getLogger()
-        logger.setLevel(logging.INFO)
-        
-        logger.warning(host)
-
-        stream_handler = logging.StreamHandler()
-        logger.addHandler(stream_handler)
-        
-        
         if host == 'https://cau-likelion.org/' :
             db_name = 'chunghaha'
         elif host == 'https://dev.cau-likelion.org/':
