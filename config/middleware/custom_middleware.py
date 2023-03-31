@@ -22,10 +22,12 @@ class SetDatabaseMiddleware:
         logger.addHandler(stream_handler)
         
         
-        if host == 'https://cau-likelion.org/' or backend == 'api-cau-likelion.shop':
+        if host == 'https://cau-likelion.org/' :
             db_name = 'chunghaha'
         elif host == 'https://dev.cau-likelion.org/':
             db_name = 'chunghaha-dev'
+        elif backend == 'api-cau-likelion.shop': # 배포 서버에서 DB 확인 위해 추가
+            db_name = 'chunghaha'
         else:
             db_name = 'default'
 
