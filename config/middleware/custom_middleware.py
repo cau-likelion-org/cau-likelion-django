@@ -16,6 +16,10 @@ class SetDatabaseMiddleware:
         logger = logging.getLogger()
         logger.setLevel(logging.INFO)
         
+        logger.warning(host)
+
+        stream_handler = logging.StreamHandler()
+        logger.addHandler(stream_handler)
         
         
         if host == 'https://cau-likelion.org/' or backend == 'api-cau-likelion.shop':
@@ -24,13 +28,7 @@ class SetDatabaseMiddleware:
             db_name = 'chunghaha-dev'
         else:
             db_name = 'default'
-        
-        logger.warning(host)
-        logger.warning(db_name)
 
-        stream_handler = logging.StreamHandler()
-        logger.addHandler(stream_handler)
-        
         # 동적으로 DB 설정 변경
         settings.DATABASES['default'] = settings.DATABASES[db_name]
 
