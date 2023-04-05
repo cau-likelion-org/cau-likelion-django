@@ -214,12 +214,7 @@ def get_redirect_url(request):
     host = request.META.get('HTTP_REFERER')
     scheme = request.scheme
     
-    host_domain = host
-    
-    if host_domain != None:
-        host_domain = host.split('/google')[0]
-    
-    if host_domain == 'http://localhost:3000':
+    if host == 'http://localhost:3000/':
         redirect_uri = 'http://localhost:3000/google'
     else:
         redirect_uri = 'https://cau-likelion.org/google'
@@ -230,7 +225,6 @@ def get_redirect_url(request):
     logger.setLevel(logging.INFO)
     
     logger.warning(host)
-    logger.warning(host_domain)
     logger.warning(redirect_uri)
 
     stream_handler = logging.StreamHandler()
