@@ -105,7 +105,7 @@ class AttendanceView(APIView):
                 else:
                     return Response(data={
                         "message" : "현재 활동중인 멤버가 아닙니다."
-                    }, status=status.HTTP_401_UNAUTHORIZED)
+                    }, status=status.HTTP_406_NOT_ACCEPTABLE)
         except:
             return Response(data={
                 "message" : "출석부가 생성되지 않았습니다." # 세션 날 아닌 경우

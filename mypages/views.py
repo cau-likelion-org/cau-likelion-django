@@ -94,7 +94,7 @@ class MypageAttendanceView(APIView):
         else:
             return Response(data={
                 "message" : "현재 활동중인 회원이 아닙니다."
-            }, status=status.HTTP_401_UNAUTHORIZED)
+            }, status=status.HTTP_406_NOT_ACCEPTABLE)
     
     # 누적 출석 수정 - input : user pk
     def post(self, request):
@@ -140,7 +140,7 @@ class MypageAttendanceView(APIView):
         else:
             return Response(data={
                 "message" : "You don't have permission."
-            }, status=status.HTTP_401_UNAUTHORIZED)
+            }, status=status.HTTP_405_METHOD_NOT_ALLOWED)
             
         
             
