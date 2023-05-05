@@ -5,6 +5,21 @@ from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
 from accounts.models import User
 import datetime
 
+from rest_framework_simplejwt.views import TokenRefreshView
+from rest_framework.exceptions import AuthenticationFailed, PermissionDenied
+
+class CustomTokenRefreshView(TokenRefreshView):
+    def check_token_blacklist(self, token):
+        try:
+            super().check_token_blacklist(token)
+        except AuthenticationFailed as e:
+            if 'Token is blacklisted' in str(e):
+                # 토큰 만료 시 403 Forbidden 반환
+                raise PermissionDenied('Token is expired', code='token_expired')
+            else:
+                raise
+
+
 def get_tokens_for_user(user):
     refresh = RefreshToken.for_user(user)
     return {

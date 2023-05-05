@@ -20,7 +20,7 @@ class MypageAttendanceView(APIView):
         if user is None:
             return Response(data={
                 "message" : "access_token으로 user를 찾을 수 없습니다."
-            }, status=status.HTTP_403_FORBIDDEN)
+            }, status=status.HTTP_401_UNAUTHORIZED)
         
         
         # 결석 update
@@ -104,7 +104,7 @@ class MypageAttendanceView(APIView):
         if user is None:
             return Response(data={
                 "message" : "access_token으로 user를 찾을 수 없습니다."
-            }, status=status.HTTP_403_FORBIDDEN)
+            }, status=status.HTTP_401_UNAUTHORIZED)
         
         member_id = request.data['user_id']
         tardiness = request.data['tardiness']
