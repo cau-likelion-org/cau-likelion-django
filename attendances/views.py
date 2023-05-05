@@ -77,7 +77,7 @@ class AttendanceView(APIView):
         if user is None:
             return Response(data={
                 "message" : "access_token으로 user를 찾을 수 없습니다."
-            }, status=status.HTTP_401_UNAUTHORIZED)
+            }, status=status.HTTP_403_FORBIDDEN)
         
         date_result = datetime.datetime.strptime(date, "%Y-%m-%d")
         
@@ -105,7 +105,7 @@ class AttendanceView(APIView):
                 else:
                     return Response(data={
                         "message" : "현재 활동중인 멤버가 아닙니다."
-                    }, status=status.HTTP_401_UNAUTHORIZED)
+                    }, status=status.HTTP_406_NOT_ACCEPTABLE)
         except:
             return Response(data={
                 "message" : "출석부가 생성되지 않았습니다." # 세션 날 아닌 경우
@@ -119,7 +119,7 @@ class AttendanceView(APIView):
         if user is None:
             return Response(data={
                 "message" : "access_token으로 user를 찾을 수 없습니다."
-            }, status=status.HTTP_401_UNAUTHORIZED)
+            }, status=status.HTTP_403_FORBIDDEN)
         
         today = datetime.datetime.now().date()
         now = datetime.datetime.now()

@@ -136,7 +136,7 @@ class CauMailView(APIView):
         if user is None:
             return Response(data={
                 "message" : "access_token으로 user를 찾을 수 없습니다."
-            }, status=status.HTTP_401_UNAUTHORIZED)
+            }, status=status.HTTP_403_FORBIDDEN)
         
         user.code = code
         user.save()
@@ -151,7 +151,7 @@ class CauMailView(APIView):
         if user is None:
             return Response(data={
                 "message" : "access_token으로 user를 찾을 수 없습니다."
-            }, status=status.HTTP_401_UNAUTHORIZED)
+            }, status=status.HTTP_403_FORBIDDEN)
         
         code = user.code
         if request.data['code'] != code:
@@ -168,7 +168,7 @@ class SignUpView(APIView):
         if user is None:
             return Response(data={
                 "message" : "access_token으로 user를 찾을 수 없습니다."
-            }, status=status.HTTP_401_UNAUTHORIZED)
+            }, status=status.HTTP_403_FORBIDDEN)
         
         if user.is_active == False:
             update_serial = UserSerializer(user, data=request.data)
