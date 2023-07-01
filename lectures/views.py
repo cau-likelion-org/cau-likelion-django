@@ -103,7 +103,7 @@ class SessionList(APIView):
         )
         session_post = Session.objects.create(
             title = title,
-            thumbnail = "https://d2ojsutiiokydr.cloudfront.net/" + thumbnail_url,
+            thumbnail = "https://dcpshnp4boilw.cloudfront.net/" + thumbnail_url,
             date = date,
             description = description,
             track = track,
@@ -129,7 +129,7 @@ class SessionList(APIView):
             )
             image = SessionImage.objects.create(
                 session = session_post,
-                image = "https://d2ojsutiiokydr.cloudfront.net/" + image_url
+                image = "https://dcpshnp4boilw.cloudfront.net/" + image_url
             )
             cnt = cnt + 1
 

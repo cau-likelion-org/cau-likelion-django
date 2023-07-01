@@ -79,7 +79,7 @@ class GalleryList(APIView):
         )
         gallery_post = Gallery.objects.create(
             title = gallery_title,
-            thumbnail = "https://d2ojsutiiokydr.cloudfront.net/" + thumbnail_url,
+            thumbnail = "https://dcpshnp4boilw.cloudfront.net/" + thumbnail_url,
             description = req_description,
             date = req_date,
             member_id = memberid
@@ -101,7 +101,7 @@ class GalleryList(APIView):
             )
             image = GalleryImage.objects.create(
                 gallery_id = gallery_post,
-                image = "https://d2ojsutiiokydr.cloudfront.net/" + image_url
+                image = "https://dcpshnp4boilw.cloudfront.net/" + image_url
             )
             cnt = cnt + 1
 
