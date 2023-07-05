@@ -13,7 +13,7 @@ from .serializers import *
 from mypages.models import *
 from auths.views import *
 
-
+# test
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
