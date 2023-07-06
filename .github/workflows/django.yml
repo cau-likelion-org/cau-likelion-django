@@ -16,7 +16,7 @@ jobs:
       - name: Set up SSH
         uses: webfactory/ssh-agent@v0.5.3
         with:
-          ssh-private-key: ${{ secrets.CHUNGHAHA_DEPLOY }}
+          ssh-private-key: ${{ secrets.CHUNGHAHA_DEPLOY_KEY }}
 
       - name: SSH to EC2 and kill running processes
         run: |
