@@ -7,9 +7,8 @@ on:
     branches: [main, cd]
 
 jobs:
-  cd:
+  deploy:
     name: "Django CD"
-    needs: ci
     runs-on: ubuntu-20.04
     steps:
       - name: EC2 ssh connection test
