@@ -105,6 +105,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     #'django.middleware.multipart.MultipartMiddleware',
     'config.middleware.custom_middleware.SetDatabaseMiddleware',
+    'allauth.account.middleware.AccountMiddleware'
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -130,6 +131,8 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
+import pymysql
+pymysql.install_as_MySQLdb()
 
 DATABASES = my_settings.DATABASES
 

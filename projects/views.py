@@ -20,7 +20,8 @@ class ProjectList(APIView):
 
         nine = [] # 9기
         ten = [] # 10기
-        eleven = [] # 11기 // 사이드프로젝트 이어받는 분들~ 이 다음부터 12기는 twelve 13기는 thirteen 하시면 됩니다.       
+        eleven = [] # 11기 // 사이드프로젝트 이어받는 분들~ 이 다음부터 12기는 twelve 13기는 thirteen 하시면 됩니다.
+        twelve = []     
 
         for project in project_list:
             if project['version'] == 9:
@@ -83,7 +84,7 @@ class ProjectList(APIView):
         thumbnail_url = f"projects/{title}/thumbnail" # DB에 저장될 썸네일 이미지 url 설정
         self.s3_client.upload_fileobj(
             thumbnail,
-            "realchunghaha",
+            "chunghaha",
             thumbnail_url,
             ExtraArgs={
                     "ContentType": thumbnail.content_type
@@ -112,7 +113,7 @@ class ProjectList(APIView):
             image_url = f"projects/{title}/image{cnt}"
             self.s3_client.upload_fileobj(
                 image,
-                "realchunghaha",
+                "chunghaha",
                 image_url,
                 ExtraArgs={
                         "ContentType": image.content_type
