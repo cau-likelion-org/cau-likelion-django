@@ -1,31 +1,30 @@
-name: Deploy
+name: Django EC2 Deploy
 
 on:
   push:
-    branches:
-      - deploy
+    branches: [main]
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
-
+    name: "Django CD"
+    runs-on: ubuntu-20.04
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Set up SSH
-        uses: webfactory/ssh-agent@v0.5.3
+      - name: EC2 ssh connection test
+        uses: appleboy/ssh-action@master
         with:
-          ssh-private-key: ${{ secrets.CHUNGHAHA_DEPLOY_KEY }}
-
-      - name: SSH to EC2 and kill running processes
-        run: |
-          ssh ubuntu@ip-172-31-1-75 "ps -ef | grep manage.py | grep -v grep | awk '{print \$2}' | xargs -r kill -9"
-              
-      - name: Activate virtualenv and install dependencies
-        run: |
-          ssh ubuntu@ip-172-31-1-75 "source venv/bin/activate && cd cau-likelion-django && pip install -r requirements.txt"
-        
-      - name: Update code and run server
-        run: |
-          ssh ubuntu@ip-172-31-1-75 "git pull origin main && nohup python manage.py runserver 0.0.0.0:8000 &"
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PEM }}
+          command_timeout: 3m
+          script: |
+            sudo apt-get update
+            sudo apt-get -y upgrade
+            cd cau-likelion-django
+            source venv/bin/activate
+            git pull origin main
+            sudo lsof -t -i tcp:8000 | xargs kill -9
+            pip install -r requirements.txt
+            python manage.py makemigrations	
+            python manage.py migrate
+            nohup gunicorn --bind 0.0.0.0:8000 config.wsgi > nohup.out 2> nohup.err < /dev/null &
+            exit 0
