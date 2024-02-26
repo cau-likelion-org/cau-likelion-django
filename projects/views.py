@@ -43,7 +43,7 @@ class ProjectList(APIView):
                     'thumbnail' : project['thumbnail'],
                 })
             elif project['version'] == 11:
-                twelve.append({
+                eleven.append({
                     'id' : project['project_id'],
                     'title' : project['title'],
                     'dev_stack' : project['dev_stack'],
