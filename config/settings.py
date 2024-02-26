@@ -44,7 +44,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
-CSRF_TRUSTED_ORIGINS = ['https://api-cau-likelion.shop', 'https://cau-likelion.org', 'http://localhost:3000']
+CSRF_TRUSTED_ORIGINS = ['https://cau-chunghaha.kro.kr', 'https://cau-likelion.org', 'http://localhost:3000']
 # CORS_ORIGIN_WHITELIST = ['https://api.cau-likelion.org', 'https://cau-likelion.org', 'http://localhost:3000']
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS = True
@@ -105,6 +105,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     #'django.middleware.multipart.MultipartMiddleware',
     'config.middleware.custom_middleware.SetDatabaseMiddleware',
+    'allauth.account.middleware.AccountMiddleware'
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -130,6 +131,8 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
+import pymysql
+pymysql.install_as_MySQLdb()
 
 DATABASES = my_settings.DATABASES
 

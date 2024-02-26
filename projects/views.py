@@ -20,7 +20,8 @@ class ProjectList(APIView):
 
         nine = [] # 9기
         ten = [] # 10기
-        eleven = [] # 11기 // 사이드프로젝트 이어받는 분들~ 이 다음부터 12기는 twelve 13기는 thirteen 하시면 됩니다.       
+        eleven = [] # 11기 // 사이드프로젝트 이어받는 분들~ 이 다음부터 12기는 twelve 13기는 thirteen 하시면 됩니다.
+        twelve = []     
 
         for project in project_list:
             if project['version'] == 9:
@@ -42,6 +43,15 @@ class ProjectList(APIView):
                     'thumbnail' : project['thumbnail'],
                 })
             elif project['version'] == 11:
+                twelve.append({
+                    'id' : project['project_id'],
+                    'title' : project['title'],
+                    'dev_stack' : project['dev_stack'],
+                    'subtitle' : project['subtitle'],
+                    'category' : project['category'],
+                    'thumbnail' : project['thumbnail'],
+                })
+            elif project['version'] == 12:
                 eleven.append({
                     'id' : project['project_id'],
                     'title' : project['title'],
@@ -57,7 +67,7 @@ class ProjectList(APIView):
                 "9" : nine,
                 "10" : ten,
                 "11" : eleven,
-                # "2024" : four,
+                "12" : twelve
             }
         }, status=status.HTTP_200_OK)
     
@@ -83,7 +93,7 @@ class ProjectList(APIView):
         thumbnail_url = f"projects/{title}/thumbnail" # DB에 저장될 썸네일 이미지 url 설정
         self.s3_client.upload_fileobj(
             thumbnail,
-            "realchunghaha",
+            "cau-likelion",
             thumbnail_url,
             ExtraArgs={
                     "ContentType": thumbnail.content_type
@@ -112,7 +122,7 @@ class ProjectList(APIView):
             image_url = f"projects/{title}/image{cnt}"
             self.s3_client.upload_fileobj(
                 image,
-                "realchunghaha",
+                "cau-likelion",
                 image_url,
                 ExtraArgs={
                         "ContentType": image.content_type
