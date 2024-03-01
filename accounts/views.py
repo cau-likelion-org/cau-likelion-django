@@ -92,8 +92,8 @@ def google_callback(request):
     # 아예 회원가입 안한 사람
     else:
         # 이메일이 @likelion.org 아닌 경우 오류 처리
-        if email.split('@')[1] != 'likelion.org':
-            return JsonResponse({'err_msg' : 'no matching likelion'}, status=status.HTTP_400_BAD_REQUEST)
+        # if email.split('@')[1] != 'likelion.org':
+        #     return JsonResponse({'err_msg' : 'no matching likelion'}, status=status.HTTP_400_BAD_REQUEST)
         
         new_user_info = User.objects.create(
             social_id = sub,
