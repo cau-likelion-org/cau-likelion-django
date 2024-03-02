@@ -29,8 +29,8 @@ class AttendanceAdminView(APIView):
         
         date = request.data['date']
         password = request.data['password']
-        
         attendances = Attendance.objects.all()
+
         for attendance in attendances:
             if str(attendance.date) == date:
                 return Response(data={
@@ -41,6 +41,7 @@ class AttendanceAdminView(APIView):
             date = date,
             password = password
         )
+        
         new_attendance.save()
         
         attendance_json = {
@@ -49,7 +50,7 @@ class AttendanceAdminView(APIView):
         }
        
         # user별 출석부 create
-        users = User.objects.filter(generation=11, is_admin=False)
+        users = User.objects.filter(generation=12, is_admin=False)
         
         for user in users:
             new_user_attendance = UserAttendance.objects.create(
@@ -89,7 +90,7 @@ class AttendanceView(APIView):
                     "message" : "운영진 입니다."
                 }, status=status.HTTP_405_METHOD_NOT_ALLOWED)
             else:
-                if user.generation == 11:
+                if user.generation == 12:
                     user_attendance = UserAttendance.objects.get(user=user, attendance=attendance)
                     user_attendance_json = {
                         "name" : user.name,
