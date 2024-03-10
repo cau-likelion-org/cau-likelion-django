@@ -177,10 +177,10 @@ class SignUpView(APIView):
                 update_serial.save()
                 
                 # 아이디 활성화
-                user.is_active = True
+                # user.is_active = True
                 user.save()
                 
-                if user.is_admin == False and user.generation == 11:
+                if user.is_admin == False and user.generation == 12:
                     # mypage 모델 생성
                     new_cumulative_attendance = CumulativeAttendance.objects.create(
                         user = user,
