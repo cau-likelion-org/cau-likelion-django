@@ -50,10 +50,10 @@ class MypageAttendanceView(APIView):
             pass
         
         # 누적 출석부 get
-        if user.generation == 11:
+        if user.generation == CURRENT_GENERATION:
             # 운영진 -> 아기사자 전체 누적 출석
             if user.is_admin == True:
-                members = User.objects.filter(generation=11, is_admin=False)
+                members = User.objects.filter(generation=CURRENT_GENERATION, is_admin=False)
             # generation 현재 - 2012 
                 total_attendances = []
                 
