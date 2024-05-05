@@ -10,7 +10,7 @@ from accounts.serializers import *
 from attendances.serializers import AttendanceSerializer, UserAttendanceSerializer
 
 # Create your views here.
-
+CURRENT_GENERATION = 12
 # '/attendance' : get - 누적 출석 조회, post - 출석 수정
 class MypageAttendanceView(APIView):
     def get(self, request):
