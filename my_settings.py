@@ -25,6 +25,11 @@ DATABASES = {
 		'PASSWORD': get_secret("DB_PASSWORD"),
 		'HOST': get_secret("DB_HOST"),
 		'PORT': '3306',
+		'OPTIONS': {
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+            'charset': 'utf8mb4',
+            'use_unicode': True,
+        },  
 	},
 	'chunghaha' : {
      	'ENGINE': 'django.db.backends.mysql',
@@ -33,6 +38,11 @@ DATABASES = {
 		'PASSWORD': get_secret("DB_PASSWORD"),
 		'HOST': get_secret("DB_HOST"),
 		'PORT': '3306',
+		'OPTIONS': {
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+            'charset': 'utf8mb4',
+            'use_unicode': True,
+        },
 	},
  	'chunghaha-dev': {
         'ENGINE': 'django.db.backends.mysql',
@@ -41,5 +51,10 @@ DATABASES = {
         'PASSWORD': get_secret("DB_PASSWORD"),
         'HOST': get_secret("DB_HOST"),
         'PORT': '3306',
+        'OPTIONS': {
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+            'charset': 'utf8mb4',
+            'use_unicode': True,
+        },
     },
 }
