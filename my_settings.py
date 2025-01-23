@@ -46,8 +46,8 @@ DATABASES = {
 	},
  	'chunghaha-dev': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'chunghaha',
-        'USER': 'admin',
+        'NAME': 'chunghaha_image_post',
+        'USER': 'root',
         'PASSWORD': get_secret("DB_PASSWORD"),
         'HOST': get_secret("DB_HOST"),
         'PORT': '3306',
