@@ -84,9 +84,7 @@ THIRD_PARTY_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
-    #'boto3',
-    #'django-storages',
-    #'pillow',
+    'boto3',
     'storages',
     'corsheaders',
     
@@ -182,10 +180,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 ########AWS##########
 AWS_ACCESS_KEY_ID = get_secret('AWS_ACCESS_KEY_ID')
 AWS_SECRET_ACCESS_KEY = get_secret('AWS_SECRET_ACCESS_KEY')
-AWS_REGION = 'ap-northeast-2'
+AWS_REGION = get_secret('AWS_REGION')
 
 ########S3###########
-AWS_STORAGE_BUCKET_NAME = 'realchunghaha'
+AWS_STORAGE_BUCKET_NAME = get_secret('AWS_STORAGE_BUCKET_NAME')
 AWS_S3_CUSTOM_DOMAIN = '%s.s3.%s.amazonaws.com' % (AWS_STORAGE_BUCKET_NAME,AWS_REGION)
 AWS_S3_OBJECT_PARAMETERS = {
     'CacheControl': 'max-age=86400',
