@@ -42,7 +42,7 @@ SECRET_KEY = get_secret("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['https://cau-likelion.org', 'http://localhost:3000',]
 
 CSRF_TRUSTED_ORIGINS = ['https://cau-chunghaha.kro.kr', 'https://cau-likelion.org', 'http://localhost:3000']
 # CORS_ORIGIN_WHITELIST = ['https://api.cau-likelion.org', 'https://cau-likelion.org', 'http://localhost:3000']
