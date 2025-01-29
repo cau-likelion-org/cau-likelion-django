@@ -4,11 +4,13 @@ from accounts.models import User
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
+from rest_framework.parsers import MultiPartParser, FormParser
 from django.http import Http404
 from config.settings import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY
 import boto3
 
 class ProjectList(APIView):
+    parser_classes = [MultiPartParser, FormParser]
     s3_client = boto3.client(
             's3',
             aws_access_key_id = AWS_ACCESS_KEY_ID,
@@ -72,74 +74,17 @@ class ProjectList(APIView):
         }, status=status.HTTP_200_OK)
     
     def post(self, request):
-        title = request.POST['title']
-        subtitle = request.POST['subtitle']
-        dev_stack = request.POST['dev_stack']
-        thumbnail = request.FILES['thumbnail']
-        generation = request.POST['generation']
-        team_name = request.POST['team_name']
-        team_member = request.POST['team_member']
-        start_date = request.POST['start_date']
-        end_date = request.POST['end_date']
-        description = request.POST['description']
-        link = request.POST['link']
-        category = request.POST['category']
-        login_email = request.POST['login_email']
-
-        memberid = User.objects.get(
-            email = login_email
-        )
-
-        thumbnail_url = f"projects/{title}/thumbnail" # DB에 저장될 썸네일 이미지 url 설정
-        self.s3_client.upload_fileobj(
-            thumbnail,
-            "cau-likelion",
-            thumbnail_url,
-            ExtraArgs={
-                    "ContentType": thumbnail.content_type
-                }
-        )
-        project_post = Project.objects.create(
-            title = title,
-            subtitle = subtitle,
-            dev_stack = dev_stack,
-            thumbnail = "https://dcpshnp4boilw.cloudfront.net/" + thumbnail_url,
-            version = generation,
-            team_name = team_name,
-            team_member = team_member,
-            start_date = start_date,
-            end_date = end_date,
-            description = description,
-            link = link,
-            category = category,
-            member_id = memberid
-        )
-        project_post.save()
-
-        images = request.FILES.getlist('images')
-        cnt = 1
-        for image in images:
-            image_url = f"projects/{title}/image{cnt}"
-            self.s3_client.upload_fileobj(
-                image,
-                "cau-likelion",
-                image_url,
-                ExtraArgs={
-                        "ContentType": image.content_type
-                    }
-            )
-            image = ProjectImage.objects.create(
-                project_id = project_post,
-                image = "https://dcpshnp4boilw.cloudfront.net/" + image_url
-            )
-            cnt = cnt + 1
-
-        return Response(data={
-        "message" : "success",
-        "data" : {
-            "title" : title
-        }
-    }, status=status.HTTP_200_OK)
+        request.data["member_id"] = 1     
+        serializer = ProjectSerializer(data=request.data, context={'request': request})
+        
+        if serializer.is_valid():
+            serializer.save()
+            return Response({
+                "message": "Project create success",
+                "data": serializer.data
+            }, status=status.HTTP_200_OK)
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)      
 
 
 # Project의 detail을 보여주는 역할
