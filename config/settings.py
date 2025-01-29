@@ -42,12 +42,22 @@ SECRET_KEY = get_secret("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['https://cau-chunghaha.p-e.kr', 'https://cau-likelion.org', 'http://localhost:3000',]
+ALLOWED_HOSTS = ['cau-chunghaha.p-e.kr', 'cau-likelion.org', 'localhost']
 
-CSRF_TRUSTED_ORIGINS = ['https://cau-chunghaha.p-e.kr', 'https://cau-likelion.org', 'http://localhost:3000']
-# CORS_ORIGIN_WHITELIST = ['https://api.cau-likelion.org', 'https://cau-likelion.org', 'http://localhost:3000']
-CORS_ORIGIN_ALLOW_ALL = True
-CORS_ALLOW_CREDENTIALS = True
+CSRF_TRUSTED_ORIGINS = [
+    "https://cau-chunghaha.p-e.kr",
+    "https://cau-likelion.org",
+    "http://localhost:3000",
+]
+
+CORS_ALLOWED_ORIGINS = [
+    "https://cau-chunghaha.p-e.kr",
+    "https://cau-likelion.org",
+    "http://localhost:3000",
+]
+
+CORS_ALLOW_CREDENTIALS = True 
+CORS_ALLOW_METHODS = ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
 
 # Application definition
 
