@@ -10,7 +10,8 @@ from accounts.serializers import *
 from attendances.serializers import AttendanceSerializer, UserAttendanceSerializer
 
 # Create your views here.
-CURRENT_GENERATION = 12
+CURRENT_GENERATION = 13 # 현재 기수
+
 # '/attendance' : get - 누적 출석 조회, post - 출석 수정
 class MypageAttendanceView(APIView):
     def get(self, request):
@@ -53,7 +54,7 @@ class MypageAttendanceView(APIView):
         if user.generation == CURRENT_GENERATION:
             # 운영진 -> 아기사자 전체 누적 출석
             if user.is_admin == True:
-                members = User.objects.filter(generation=CURRENT_GENERATION, is_admin=False)
+                members = User.objects.filter(generation=CURRENT_GENERATION, is_admin=False) # 현재 기수 아기사자
             # generation 현재 - 2012 
                 total_attendances = []
                 
@@ -119,7 +120,7 @@ class MypageAttendanceView(APIView):
             }, status=status.HTTP_400_BAD_REQUEST)
         
         
-        if user.is_admin == True:
+        if user.is_admin == True: # 운영진인 경우
             cumulative_attendance = CumulativeAttendance.objects.get(user=member)
             cumulative_attendance.tardiness = tardiness
             cumulative_attendance.absence = absence
@@ -137,7 +138,7 @@ class MypageAttendanceView(APIView):
                 "message" : "success",
                 "data" : cumulative_attendance_json
             }, status=status.HTTP_200_OK)
-        else:
+        else: # 운영진이 아닌 경우
             return Response(data={
                 "message" : "You don't have permission."
             }, status=status.HTTP_405_METHOD_NOT_ALLOWED)

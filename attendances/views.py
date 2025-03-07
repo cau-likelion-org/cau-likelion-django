@@ -50,7 +50,7 @@ class AttendanceAdminView(APIView):
         }
        
         # user별 출석부 create
-        users = User.objects.filter(generation=12, is_admin=False)
+        users = User.objects.filter(generation=13, is_admin=False) # 13기 아기사자의 출석부 생성
         
         for user in users:
             new_user_attendance = UserAttendance.objects.create(
@@ -85,12 +85,14 @@ class AttendanceView(APIView):
         try:
             attendance = Attendance.objects.get(date=date_result)
             
+            # 운영진
             if user.is_admin == True:
                 return Response(data={
                     "message" : "운영진 입니다."
                 }, status=status.HTTP_405_METHOD_NOT_ALLOWED)
             else:
-                if user.generation == 12:
+                # 13기 아기사자
+                if user.generation == 13:
                     user_attendance = UserAttendance.objects.get(user=user, attendance=attendance)
                     user_attendance_json = {
                         "name" : user.name,
@@ -138,11 +140,11 @@ class AttendanceView(APIView):
         
         
         # 6분부터 지각
-        if time.seconds < 68760:
+        if time.seconds < 68760: # 정상 출석
             user_attendance.attendance_result = 1
             user_attendance.save()
 
-        else:
+        else: # 지각
             user_attendance.attendance_result = 2
             user_attendance.save()
 
@@ -169,8 +171,9 @@ class AttendanceListView(APIView):
         attendance = Attendance.objects.get(date=date) # 오늘 출석부
         user_attendances = UserAttendance.objects.filter(attendance=attendance)
         
-        PM = []
-        DGN = []
+        # PM = []
+        # DGN = []
+        PM_DGN = []
         FE = []
         BE = []
         
@@ -178,27 +181,30 @@ class AttendanceListView(APIView):
             # 출석 or 지각
             if user_attendance.attendance_result == 1 or user_attendance.attendance_result == 2:
                 
-                # 기획
-                if user_attendance.user.track == 0:
-                    PM.append(user_attendance.user.name)
+                # # 기획
+                # if user_attendance.user.track == 0:
+                #     PM.append(user_attendance.user.name)
                 
-                # 디자인
-                if user_attendance.user.track == 1:
-                    DGN.append(user_attendance.user.name)
+                # # 디자인
+                # if user_attendance.user.track == 1:
+                #     DGN.append(user_attendance.user.name)
+
+                # 기획디자인
+                if user_attendance.user.track == 0:
+                    PM_DGN.append(user_attendance.user.name)
                 
                 # 프론트
-                if user_attendance.user.track == 2:
+                if user_attendance.user.track == 1:
                     FE.append(user_attendance.user.name)
                     
                 # 백엔드
-                if user_attendance.user.track == 3:
+                if user_attendance.user.track == 2:
                     BE.append(user_attendance.user.name)
         
         return Response(data={
             "message" : "success",
             "data" : {
-                "pm" : PM,
-                "design" : DGN,
+                "pm_design" : PM_DGN,
                 "frontend" : FE,
                 "backend" : BE
             }
