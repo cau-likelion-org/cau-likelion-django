@@ -180,7 +180,7 @@ class SignUpView(APIView):
                 # user.is_active = True
                 user.save()
                 
-                if user.is_admin == False and user.generation == 12:
+                if user.is_admin == False and user.generation == 13: # 13기 아기사자
                     # mypage 모델 생성
                     new_cumulative_attendance = CumulativeAttendance.objects.create(
                         user = user,
