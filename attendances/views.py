@@ -171,8 +171,9 @@ class AttendanceListView(APIView):
         attendance = Attendance.objects.get(date=date) # 오늘 출석부
         user_attendances = UserAttendance.objects.filter(attendance=attendance)
         
-        PM = []
-        DGN = []
+        # PM = []
+        # DGN = []
+        PM_DGN = []
         FE = []
         BE = []
         
@@ -180,27 +181,30 @@ class AttendanceListView(APIView):
             # 출석 or 지각
             if user_attendance.attendance_result == 1 or user_attendance.attendance_result == 2:
                 
-                # 기획
-                if user_attendance.user.track == 0:
-                    PM.append(user_attendance.user.name)
+                # # 기획
+                # if user_attendance.user.track == 0:
+                #     PM.append(user_attendance.user.name)
                 
-                # 디자인
-                if user_attendance.user.track == 1:
-                    DGN.append(user_attendance.user.name)
+                # # 디자인
+                # if user_attendance.user.track == 1:
+                #     DGN.append(user_attendance.user.name)
+
+                # 기획디자인
+                if user_attendance.user.track == 0:
+                    PM_DGN.append(user_attendance.user.name)
                 
                 # 프론트
-                if user_attendance.user.track == 2:
+                if user_attendance.user.track == 1:
                     FE.append(user_attendance.user.name)
                     
                 # 백엔드
-                if user_attendance.user.track == 3:
+                if user_attendance.user.track == 2:
                     BE.append(user_attendance.user.name)
         
         return Response(data={
             "message" : "success",
             "data" : {
-                "pm" : PM,
-                "design" : DGN,
+                "pm_design" : PM_DGN,
                 "frontend" : FE,
                 "backend" : BE
             }
