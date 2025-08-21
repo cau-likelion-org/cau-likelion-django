@@ -93,10 +93,11 @@ class SessionList(APIView):
             email = login_email
         )
 
+        bucket_name = settings.AWS_STORAGE_BUCKET_NAME
         thumbnail_url = f"session-images/{title}/thumbnail" # DB에 저장될 썸네일 이미지 url 설정
         self.s3_client.upload_fileobj(
             thumbnail,
-            settings.AWS_STORAGE_BUCKET_NAME,
+            bucket_name,
             thumbnail_url,
             ExtraArgs={
                     "ContentType": thumbnail.content_type
@@ -104,7 +105,7 @@ class SessionList(APIView):
         )
         session_post = Session.objects.create(
             title = title,
-            thumbnail = "https://dcpshnp4boilw.cloudfront.net/" + thumbnail_url,
+            thumbnail = "https://{bucket_name}.s3.amazonaws.com/" + thumbnail_url,
             date = date,
             description = description,
             track = track,
@@ -122,7 +123,7 @@ class SessionList(APIView):
             image_url = f"session-images/{title}/image{cnt}"
             self.s3_client.upload_fileobj(
                 image,
-                settings.AWS_STORAGE_BUCKET_NAME,
+                bucket_name,
                 image_url,
                 ExtraArgs={
                         "ContentType": image.content_type
@@ -130,7 +131,7 @@ class SessionList(APIView):
             )
             image = SessionImage.objects.create(
                 session = session_post,
-                image = "https://dcpshnp4boilw.cloudfront.net/" + image_url
+                image = "https://{bucket_name}.s3.amazonaws.com/" + image_url
             )
             cnt = cnt + 1
 
