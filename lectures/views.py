@@ -105,7 +105,7 @@ class SessionList(APIView):
         )
         session_post = Session.objects.create(
             title = title,
-            thumbnail = "https://{bucket_name}.s3.amazonaws.com/" + thumbnail_url,
+            thumbnail = f"https://{bucket_name}.s3.amazonaws.com/" + thumbnail_url,
             date = date,
             description = description,
             track = track,
@@ -131,7 +131,7 @@ class SessionList(APIView):
             )
             image = SessionImage.objects.create(
                 session = session_post,
-                image = "https://{bucket_name}.s3.amazonaws.com/" + image_url
+                image = f"https://{bucket_name}.s3.amazonaws.com/" + image_url
             )
             cnt = cnt + 1
 
