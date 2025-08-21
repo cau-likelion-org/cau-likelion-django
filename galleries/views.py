@@ -88,7 +88,7 @@ class GalleryList(APIView):
         )
         gallery_post = Gallery.objects.create(
             title = gallery_title,
-            thumbnail = "https://{bucket_name}.s3.amazonaws.com/" + thumbnail_url,
+            thumbnail = f"https://{bucket_name}.s3.amazonaws.com/" + thumbnail_url,
             description = req_description,
             date = req_date,
             member_id = memberid
@@ -110,7 +110,7 @@ class GalleryList(APIView):
             )
             image = GalleryImage.objects.create(
                 gallery_id = gallery_post,
-                image = "https://{bucket_name}.s3.amazonaws.com/" + image_url
+                image = f"https://{bucket_name}.s3.amazonaws.com/" + image_url
             )
             cnt = cnt + 1
 
