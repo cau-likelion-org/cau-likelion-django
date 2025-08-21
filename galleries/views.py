@@ -76,10 +76,11 @@ class GalleryList(APIView):
         memberid = User.objects.get(
             email = login_email
         )
+        bucket_name = settings.AWS_STORAGE_BUCKET_NAME
         thumbnail_url = f"gallery-images/{gallery_title}/thumbnail" # DB에 저장될 썸네일 이미지 url 설정
         self.s3_client.upload_fileobj(
             thumbnail,
-            settings.AWS_STORAGE_BUCKET_NAME,
+            bucket_name,
             thumbnail_url,
             ExtraArgs={
                     "ContentType": thumbnail.content_type
@@ -87,7 +88,7 @@ class GalleryList(APIView):
         )
         gallery_post = Gallery.objects.create(
             title = gallery_title,
-            thumbnail = "https://dcpshnp4boilw.cloudfront.net/" + thumbnail_url,
+            thumbnail = "https://{bucket_name}.s3.amazonaws.com/" + thumbnail_url,
             description = req_description,
             date = req_date,
             member_id = memberid
@@ -101,7 +102,7 @@ class GalleryList(APIView):
             image_url = f"gallery-images/{gallery_title}/image{cnt}"
             self.s3_client.upload_fileobj(
                 image,
-                settings.AWS_STORAGE_BUCKET_NAME,
+                bucket_name,
                 image_url,
                 ExtraArgs={
                         "ContentType": image.content_type
@@ -109,7 +110,7 @@ class GalleryList(APIView):
             )
             image = GalleryImage.objects.create(
                 gallery_id = gallery_post,
-                image = "https://dcpshnp4boilw.cloudfront.net/" + image_url
+                image = "https://{bucket_name}.s3.amazonaws.com/" + image_url
             )
             cnt = cnt + 1
 
