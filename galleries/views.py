@@ -8,6 +8,7 @@ from rest_framework import status
 from django.http import Http404
 from config.settings import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY
 import boto3
+from django.conf import settings
 
 # 갤러리의 목록을 보여주는 역할
 class GalleryList(APIView):
@@ -75,10 +76,10 @@ class GalleryList(APIView):
         memberid = User.objects.get(
             email = login_email
         )
-        thumbnail_url = f"galleries/{gallery_title}/thumbnail" # DB에 저장될 썸네일 이미지 url 설정
+        thumbnail_url = f"gallery-images/{gallery_title}/thumbnail" # DB에 저장될 썸네일 이미지 url 설정
         self.s3_client.upload_fileobj(
             thumbnail,
-            "realchunghaha",
+            settings.AWS_STORAGE_BUCKET_NAME,
             thumbnail_url,
             ExtraArgs={
                     "ContentType": thumbnail.content_type
@@ -97,10 +98,10 @@ class GalleryList(APIView):
         images = request.FILES.getlist('images')
         cnt = 1
         for image in images:
-            image_url = f"galleries/{gallery_title}/image{cnt}"
+            image_url = f"gallery-images/{gallery_title}/image{cnt}"
             self.s3_client.upload_fileobj(
                 image,
-                "realchunghaha",
+                settings.AWS_STORAGE_BUCKET_NAME,
                 image_url,
                 ExtraArgs={
                         "ContentType": image.content_type
