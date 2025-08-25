@@ -24,7 +24,8 @@ class GalleryList(APIView):
         one = [] # 2021년
         two = [] # 2022년
         three = [] # 2023년 // 사이드프로젝트 이어받는 분들 이 다음부터 2024년은 four 2025년은 five 하시면 됩니다. 
-        four = []      
+        four = [] # 2024년
+        five = [] # 2025년
 
         for gallery in gallery_list:
             if gallery['date'][0:4] == '2021':
@@ -54,7 +55,17 @@ class GalleryList(APIView):
                     'title' : gallery['title'],
                     'date' : gallery['date'],
                     'thumbnail' : gallery['thumbnail'],
-                })         
+                }) 
+
+            elif gallery['date'][0:4] == '2025':
+                five.append({
+                    'id' : gallery['gallery_id'],
+                    'title' : gallery['title'],
+                    'date' : gallery['date'],
+                    'thumbnail' : gallery['thumbnail'],
+                })    
+
+        
 
         return Response(data={
             "message" : "success",
@@ -63,6 +74,7 @@ class GalleryList(APIView):
                 "2022" : two,
                 "2023" : three,
                 "2024" : four,
+                "2025" : five,
             }
         }, status=status.HTTP_200_OK)
     

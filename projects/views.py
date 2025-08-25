@@ -23,7 +23,8 @@ class ProjectList(APIView):
         nine = [] # 9기
         ten = [] # 10기
         eleven = [] # 11기 // 사이드프로젝트 이어받는 분들~ 이 다음부터 12기는 twelve 13기는 thirteen 하시면 됩니다.
-        twelve = []     
+        twelve = [] # 12기
+        thirteen = [] # 13기
 
         for project in project_list:
             if project['version'] == 9:
@@ -62,6 +63,17 @@ class ProjectList(APIView):
                     'category' : project['category'],
                     'thumbnail' : project['thumbnail'],
                 })
+            elif project['version'] == 13:
+                thirteen.append({
+                    'id' : project['project_id'],
+                    'title' : project['title'],
+                    'dev_stack' : project['dev_stack'],
+                    'subtitle' : project['subtitle'],
+                    'category' : project['category'],
+                    'thumbnail' : project['thumbnail'],
+                })
+    
+
 
         return Response(data={
             "message" : "success",
@@ -69,7 +81,8 @@ class ProjectList(APIView):
                 "9" : nine,
                 "10" : ten,
                 "11" : eleven,
-                "12" : twelve
+                "12" : twelve,
+                "13" : thirteen,
             }
         }, status=status.HTTP_200_OK)
     
