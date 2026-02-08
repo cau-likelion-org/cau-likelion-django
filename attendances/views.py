@@ -50,7 +50,7 @@ class AttendanceAdminView(APIView):
         }
        
         # user별 출석부 create
-        users = User.objects.filter(generation=13, is_admin=False) # 13기 아기사자의 출석부 생성
+        users = User.objects.filter(generation=14, is_admin=False) # 14 아기사자의 출석부 생성 (2026)
         
         for user in users:
             new_user_attendance = UserAttendance.objects.create(
@@ -91,8 +91,8 @@ class AttendanceView(APIView):
                     "message" : "운영진 입니다."
                 }, status=status.HTTP_405_METHOD_NOT_ALLOWED)
             else:
-                # 13기 아기사자
-                if user.generation == 13:
+                # 14기 아기사자 (2026)
+                if user.generation == 14:
                     user_attendance = UserAttendance.objects.get(user=user, attendance=attendance)
                     user_attendance_json = {
                         "name" : user.name,
